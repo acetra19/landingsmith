@@ -21,6 +21,35 @@ def health():
     return JSONResponse({"status": "ok"})
 
 
+@app.get("/debug/db")
+def debug_db():
+    """Show which database is connected (no secrets exposed)."""
+    db_url_env = os.environ.get("DATABASE_URL", "not set")
+    wr_url_env = os.environ.get("WEBREACH_DATABASE_URL", "not set")
+    from config.settings import settings
+    actual = settings.db_url
+    safe_actual = actual[:30] + "..." if len(actual) > 30 else actual
+    safe_db = db_url_env[:30] + "..." if len(db_url_env) > 30 else db_url_env
+    safe_wr = wr_url_env[:30] + "..." if len(wr_url_env) > 30 else wr_url_env
+    try:
+        from database.connection import get_session
+        s = get_session()
+        from database.models import Lead
+        count = s.query(Lead).count()
+        s.close()
+        db_ok = True
+    except Exception as e:
+        count = -1
+        db_ok = False
+    return JSONResponse({
+        "DATABASE_URL": safe_db,
+        "WEBREACH_DATABASE_URL": safe_wr,
+        "resolved_db_url": safe_actual,
+        "db_connected": db_ok,
+        "lead_count": count,
+    })
+
+
 @app.on_event("startup")
 def startup():
     logger.info(f"Starting LandingSmith on PORT={os.environ.get('PORT', 'not set')}")
