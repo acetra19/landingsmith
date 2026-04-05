@@ -71,7 +71,7 @@ def get_stats():
 
         websites = session.query(Website).count()
         deployments = (
-            session.query(Deployment).filter(Deployment.status == "deployed").count()
+            session.query(Deployment).filter(Deployment.is_active == True).count()
         )
         emails_sent = (
             session.query(OutreachMessage)
@@ -152,7 +152,7 @@ def list_leads(
 def get_lead_detail(lead_id: int):
     session = get_session()
     try:
-        lead = session.query(Lead).get(lead_id)
+        lead = session.query(Lead).filter(Lead.id == lead_id).first()
         if not lead:
             return {"error": "Lead not found"}
 
@@ -220,7 +220,7 @@ def list_pipeline_runs(limit: int = Query(default=20, le=100)):
 def update_lead_status(lead_id: int, new_status: str):
     session = get_session()
     try:
-        lead = session.query(Lead).get(lead_id)
+        lead = session.query(Lead).filter(Lead.id == lead_id).first()
         if not lead:
             return {"error": "Lead not found"}
 
