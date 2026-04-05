@@ -1,0 +1,45 @@
+# Core
+sqlalchemy==2.0.36
+alembic==1.14.1
+pydantic==2.10.4
+pydantic-settings==2.7.1
+python-dotenv==1.0.1
+
+# HTTP & APIs
+httpx==0.28.1
+aiohttp==3.11.11
+
+# Google Places / Maps
+googlemaps==4.10.0
+serpapi==0.1.5
+
+# Website verification
+python-whois==0.9.4
+dnspython==2.7.0
+beautifulsoup4==4.12.3
+
+# LLM for content generation
+openai==1.58.1
+jinja2==3.1.5
+
+# Email / Outreach
+resend==2.0.0
+
+# Railway deployment
+requests==2.32.3
+
+# Dashboard
+fastapi==0.115.6
+uvicorn==0.34.0
+jinja2==3.1.5
+
+# CLI & Logging
+rich==13.9.4
+click==8.1.8
+
+# Async
+asyncio-throttle==1.0.2
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.25.0
