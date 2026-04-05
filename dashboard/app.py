@@ -38,8 +38,7 @@ def startup():
         app.include_router(preview_router)
         logger.info("Routes registered")
     except Exception as e:
-        logger.error(f"Startup failed: {e}", exc_info=True)
-        raise
+        logger.error(f"Startup failed (non-fatal): {e}", exc_info=True)
 
 
 @app.get("/", response_class=HTMLResponse)

@@ -14,7 +14,8 @@ COPY . .
 RUN mkdir -p data output
 
 ENV PORT=8000
+ENV PYTHONUNBUFFERED=1
 
 EXPOSE ${PORT}
 
-CMD uvicorn dashboard.app:app --host 0.0.0.0 --port ${PORT}
+CMD ["python", "start.py"]
