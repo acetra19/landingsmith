@@ -13,15 +13,20 @@ def get_engine():
     global _engine
     if _engine is None:
         db_url = settings.db_url
+        engine_kwargs = {
+            "echo": settings.log_level == "DEBUG",
+            "pool_pre_ping": True,
+        }
+
         if db_url.startswith("sqlite"):
             db_path = db_url.replace("sqlite:///", "")
             Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+            engine_kwargs["connect_args"] = {"check_same_thread": False}
+        else:
+            engine_kwargs["pool_size"] = 5
+            engine_kwargs["max_overflow"] = 10
 
-        _engine = create_engine(
-            db_url,
-            echo=(settings.log_level == "DEBUG"),
-            pool_pre_ping=True,
-        )
+        _engine = create_engine(db_url, **engine_kwargs)
     return _engine
 
 
