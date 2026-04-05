@@ -60,6 +60,14 @@ class EmailSettings(BaseSettings):
     model_config = {**SHARED_CONFIG, "env_prefix": "OUTREACH_"}
 
 
+class TwilioSettings(BaseSettings):
+    account_sid: str = ""
+    auth_token: str = ""
+    from_number: str = ""
+
+    model_config = {**SHARED_CONFIG, "env_prefix": "TWILIO_"}
+
+
 class PipelineSettings(BaseSettings):
     batch_size: int = 10
     outreach_daily_limit: int = 50
@@ -81,6 +89,7 @@ class Settings(BaseSettings):
     llm: LLMSettings = Field(default_factory=LLMSettings)
     railway: RailwaySettings = Field(default_factory=RailwaySettings)
     email: EmailSettings = Field(default_factory=EmailSettings)
+    twilio: TwilioSettings = Field(default_factory=TwilioSettings)
     pipeline: PipelineSettings = Field(default_factory=PipelineSettings)
 
     model_config = {"extra": "ignore"}

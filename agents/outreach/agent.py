@@ -1,6 +1,7 @@
 """
-Outreach Agent: Sends personalized cold emails to verified leads
+Outreach Agent: Sends personalized cold outreach to verified leads
 with deployed website previews and domain suggestions.
+Uses email if available, otherwise SMS via Twilio.
 """
 
 import logging
@@ -11,29 +12,51 @@ from sqlalchemy.orm import Session
 from agents.base_agent import BaseAgent
 from agents.outreach.email_sender import EmailSender
 from agents.outreach.email_templates import initial_outreach, follow_up_1, follow_up_2
+from agents.outreach.sms_sender import SMSSender
+from agents.outreach.sms_templates import initial_sms, follow_up_sms
 from config.settings import settings
 from database.models import Lead, Deployment, DomainSuggestion, OutreachMessage
 
 logger = logging.getLogger(__name__)
 
 
+NOTIFICATION_EMAIL = "james@amplivo.net"
+
+
 class OutreachAgent(BaseAgent):
     def __init__(self):
         super().__init__("outreach")
-        self.sender = EmailSender()
+        self.email_sender = EmailSender()
+        self._sms_sender = None
+
+    @property
+    def sms_sender(self) -> SMSSender:
+        if self._sms_sender is None:
+            self._sms_sender = SMSSender()
+        return self._sms_sender
 
     async def execute(
         self, lead: Lead = None, session: Session = None, **kwargs
     ) -> OutreachMessage:
         if not lead:
             raise ValueError("Lead is required for outreach")
-        if not lead.email:
-            raise ValueError(f"Lead {lead.id} has no email for outreach")
 
         deployment = self._get_deployment(session, lead.id)
         if not deployment or not deployment.live_url:
             raise ValueError(f"No deployment found for lead {lead.id}")
 
+        if lead.email:
+            return await self._send_email(lead, deployment, session)
+        elif lead.phone and settings.twilio.account_sid:
+            return await self._send_sms(lead, deployment, session)
+        else:
+            raise ValueError(
+                f"Lead {lead.id} has no email or phone for outreach"
+            )
+
+    async def _send_email(
+        self, lead: Lead, deployment: Deployment, session: Session
+    ) -> OutreachMessage:
         domains = self._get_domains(session, lead.id)
 
         subject, body = initial_outreach(
@@ -43,7 +66,7 @@ class OutreachAgent(BaseAgent):
             sender_name=settings.email.from_name,
         )
 
-        result = await self.sender.send(
+        result = await self.email_sender.send(
             to_email=lead.email,
             subject=subject,
             html_body=body,
@@ -65,10 +88,66 @@ class OutreachAgent(BaseAgent):
             session.commit()
 
         if result.success:
-            self.logger.info(f"Outreach sent to {lead.email} for {lead.business_name}")
+            self.logger.info(
+                f"Email sent to {lead.email} for {lead.business_name}"
+            )
+            await self._send_notification(lead, "email", deployment)
         else:
             self.logger.error(
-                f"Outreach failed for {lead.business_name}: {result.error}"
+                f"Email failed for {lead.business_name}: {result.error}"
+            )
+
+        return message
+
+    async def _send_sms(
+        self, lead: Lead, deployment: Deployment, session: Session
+    ) -> OutreachMessage:
+        body = initial_sms(
+            lead=lead,
+            preview_url=deployment.live_url,
+            sender_name=settings.email.from_name,
+        )
+
+        result = await self.sms_sender.send(
+            to_number=lead.phone,
+            body=body,
+        )
+
+        is_landline = not result.success and "Landline" in (result.error or "")
+        if is_landline:
+            status = "skipped"
+        elif result.success:
+            status = "sent"
+        else:
+            status = "failed"
+
+        message = OutreachMessage(
+            lead_id=lead.id,
+            channel="sms",
+            subject=f"SMS an {lead.phone}",
+            body=body,
+            recipient_email=lead.phone,
+            message_id=result.message_sid,
+            status=status,
+            sent_at=datetime.now(timezone.utc) if result.success else None,
+        )
+
+        if session:
+            session.add(message)
+            session.commit()
+
+        if result.success:
+            self.logger.info(
+                f"SMS sent to {lead.phone} for {lead.business_name}"
+            )
+            await self._send_notification(lead, "sms", deployment)
+        elif is_landline:
+            self.logger.info(
+                f"Skipped {lead.business_name}: landline {lead.phone}"
+            )
+        else:
+            self.logger.error(
+                f"SMS failed for {lead.business_name}: {result.error}"
             )
 
         return message
@@ -83,6 +162,26 @@ class OutreachAgent(BaseAgent):
         if not deployment:
             raise ValueError(f"No deployment for lead {lead.id}")
 
+        prev_message = (
+            session.query(OutreachMessage)
+            .filter(OutreachMessage.lead_id == lead.id)
+            .order_by(OutreachMessage.created_at.desc())
+            .first()
+        )
+        channel = prev_message.channel if prev_message else "email"
+
+        if channel == "sms" and settings.twilio.account_sid:
+            return await self._send_follow_up_sms(
+                lead, deployment, session, follow_up_number
+            )
+        else:
+            return await self._send_follow_up_email(
+                lead, deployment, session, follow_up_number
+            )
+
+    async def _send_follow_up_email(
+        self, lead, deployment, session, follow_up_number
+    ) -> OutreachMessage:
         template_fn = follow_up_1 if follow_up_number == 1 else follow_up_2
         subject, body = template_fn(
             lead=lead,
@@ -90,7 +189,7 @@ class OutreachAgent(BaseAgent):
             sender_name=settings.email.from_name,
         )
 
-        result = await self.sender.send(
+        result = await self.email_sender.send(
             to_email=lead.email,
             subject=subject,
             html_body=body,
@@ -112,7 +211,38 @@ class OutreachAgent(BaseAgent):
         if session:
             session.add(message)
             session.commit()
+        return message
 
+    async def _send_follow_up_sms(
+        self, lead, deployment, session, follow_up_number
+    ) -> OutreachMessage:
+        body = follow_up_sms(
+            lead=lead,
+            preview_url=deployment.live_url,
+            sender_name=settings.email.from_name,
+        )
+
+        result = await self.sms_sender.send(
+            to_number=lead.phone,
+            body=body,
+        )
+
+        message = OutreachMessage(
+            lead_id=lead.id,
+            channel="sms",
+            subject=f"Follow-up SMS #{follow_up_number}",
+            body=body,
+            recipient_email=lead.phone,
+            message_id=result.message_sid,
+            status="sent" if result.success else "failed",
+            is_follow_up=True,
+            follow_up_number=follow_up_number,
+            sent_at=datetime.now(timezone.utc) if result.success else None,
+        )
+
+        if session:
+            session.add(message)
+            session.commit()
         return message
 
     def _get_deployment(self, session: Session, lead_id: int) -> Deployment:
@@ -137,5 +267,39 @@ class OutreachAgent(BaseAgent):
             .all()
         )
 
+    async def _send_notification(
+        self, lead: Lead, channel: str, deployment: Deployment
+    ):
+        """Send confirmation email to admin after successful outreach."""
+        try:
+            contact = lead.email if channel == "email" else lead.phone
+            subject = f"Outreach gesendet: {lead.business_name}"
+            body = f"""
+            <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px">
+              <h2 style="color:#2563eb">Outreach Bestaetigung</h2>
+              <table style="width:100%;border-collapse:collapse">
+                <tr><td style="padding:8px;font-weight:bold">Unternehmen</td>
+                    <td style="padding:8px">{lead.business_name}</td></tr>
+                <tr><td style="padding:8px;font-weight:bold">Kanal</td>
+                    <td style="padding:8px">{channel.upper()}</td></tr>
+                <tr><td style="padding:8px;font-weight:bold">Kontakt</td>
+                    <td style="padding:8px">{contact}</td></tr>
+                <tr><td style="padding:8px;font-weight:bold">Adresse</td>
+                    <td style="padding:8px">{lead.address or '-'}</td></tr>
+                <tr><td style="padding:8px;font-weight:bold">Preview</td>
+                    <td style="padding:8px">
+                      <a href="{deployment.live_url}">{deployment.live_url}</a>
+                    </td></tr>
+              </table>
+            </div>
+            """
+            await self.email_sender.send(
+                to_email=NOTIFICATION_EMAIL,
+                subject=subject,
+                html_body=body,
+            )
+        except Exception as e:
+            self.logger.warning(f"Notification email failed: {e}")
+
     async def close(self):
-        await self.sender.close()
+        await self.email_sender.close()

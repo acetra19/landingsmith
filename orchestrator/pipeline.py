@@ -9,6 +9,8 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from sqlalchemy import case
+
 from config.settings import settings
 from database.connection import get_session
 from database.models import Lead, LeadStatus, PipelineRun
@@ -189,13 +191,21 @@ class Pipeline:
         run = self._start_run("outreach")
         session = get_session()
         try:
+            priority = case(
+                (Lead.email.isnot(None), 0),
+                (Lead.phone.like("015%"), 1),
+                (Lead.phone.like("016%"), 1),
+                (Lead.phone.like("017%"), 1),
+                else_=2,
+            )
             leads = (
                 session.query(Lead)
                 .filter(Lead.status == LeadStatus.DEPLOYED)
+                .order_by(priority, Lead.id)
                 .limit(batch_size)
                 .all()
             )
-            succeeded, failed = 0, 0
+            succeeded, failed, skipped = 0, 0, 0
             for lead in leads:
                 try:
                     message = await outreach.execute(lead=lead, session=session)
@@ -203,12 +213,17 @@ class Pipeline:
                         self.transition_lead(session, lead, LeadStatus.OUTREACH_SENT)
                         lead.outreach_at = datetime.now(timezone.utc)
                         succeeded += 1
+                    elif message and message.status == "skipped":
+                        skipped += 1
                     else:
                         failed += 1
                 except Exception as e:
                     logger.error(f"Outreach failed for lead {lead.id}: {e}")
                     failed += 1
             session.commit()
+            logger.info(
+                f"Outreach complete: {succeeded} sent, {skipped} skipped (landline), {failed} failed"
+            )
             run.leads_processed = len(leads)
             run.leads_succeeded = succeeded
             run.leads_failed = failed
