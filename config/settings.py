@@ -27,6 +27,8 @@ class OpenAISettings(BaseSettings):
 
 class RailwaySettings(BaseSettings):
     api_token: str = ""
+    app_base_url: str = "http://localhost:8000"
+    project_id: str = ""
     default_region: str = "europe-west"
 
     model_config = {"env_prefix": "RAILWAY_"}

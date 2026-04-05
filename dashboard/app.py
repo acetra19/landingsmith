@@ -1,14 +1,23 @@
 """
-FastAPI application serving the dashboard UI and API.
+FastAPI application serving the dashboard UI, API, and website previews.
+This single app runs on Railway and handles everything.
 """
 
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
 from dashboard.api import router as api_router
+from dashboard.preview import router as preview_router
+from database.connection import init_db
 
 app = FastAPI(title="WebReach Pipeline Dashboard", version="1.0.0")
 app.include_router(api_router)
+app.include_router(preview_router)
+
+
+@app.on_event("startup")
+def startup():
+    init_db()
 
 
 @app.get("/", response_class=HTMLResponse)

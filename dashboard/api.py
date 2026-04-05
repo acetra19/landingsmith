@@ -240,3 +240,26 @@ def update_lead_status(lead_id: int, new_status: str):
         return {"success": True, "new_status": lead.status.value}
     finally:
         session.close()
+
+
+@router.post("/preview/{lead_id}/view")
+def track_preview_view(lead_id: int):
+    """Track when someone views a preview (fired from the preview page)."""
+    session = get_session()
+    try:
+        messages = (
+            session.query(OutreachMessage)
+            .filter(
+                OutreachMessage.lead_id == lead_id,
+                OutreachMessage.opened_at.is_(None),
+            )
+            .all()
+        )
+        now = datetime.now(timezone.utc)
+        for msg in messages:
+            msg.opened_at = now
+        if messages:
+            session.commit()
+        return {"tracked": len(messages)}
+    finally:
+        session.close()

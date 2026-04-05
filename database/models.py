@@ -114,12 +114,10 @@ class Deployment(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False)
     website_id = Column(Integer, ForeignKey("websites.id"), nullable=False)
-    railway_project_id = Column(String(255))
-    railway_service_id = Column(String(255))
-    railway_environment_id = Column(String(255))
     live_url = Column(String(500))
     custom_domain = Column(String(255))
     status = Column(String(50), default="pending")
+    is_active = Column(Boolean, default=True)
     deployed_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
