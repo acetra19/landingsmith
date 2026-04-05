@@ -12,9 +12,10 @@ def initial_sms(
     sender_name: str = "LandingSmith",
 ) -> str:
     return (
-        f"Guten Tag! Wir haben eine kostenlose Website fuer "
+        f"Guten Tag! Wir haben einen Website-Entwurf fuer "
         f"{lead.business_name} erstellt: {preview_url} "
-        f"- Interesse? Schreiben Sie uns an james@amplivo.net. "
+        f"- Fertige Website ab 99EUR einmalig. "
+        f"Interesse? james@amplivo.net. "
         f"LG {sender_name}"
     )
 
@@ -25,8 +26,9 @@ def follow_up_sms(
     sender_name: str = "LandingSmith",
 ) -> str:
     return (
-        f"Kurze Erinnerung: Ihr kostenloser Website-Entwurf fuer "
+        f"Kurze Erinnerung: Ihr Website-Entwurf fuer "
         f"{lead.business_name} ist noch online: {preview_url} "
-        f"- Fragen? Melden Sie sich gerne: james@amplivo.net. "
+        f"- Ab 99EUR fertig mit eigener Domain. "
+        f"Fragen? james@amplivo.net. "
         f"LG {sender_name}"
     )

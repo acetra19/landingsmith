@@ -55,6 +55,24 @@ def initial_outreach(
         innerhalb weniger Tage unter Ihrer eigenen Domain live schalten –
         natürlich passe ich alles nach Ihren Wünschen an.</p>
 
+        <table style="width:100%;border-collapse:collapse;margin:20px 0;font-size:14px">
+            <tr style="background:#f8fafc">
+                <td style="padding:12px 16px;border:1px solid #e5e7eb"><strong>Website (einmalig)</strong><br>
+                    <span style="color:#64748b;font-size:13px">Design, Texte, Anpassungen nach Ihren Wünschen</span></td>
+                <td style="padding:12px 16px;border:1px solid #e5e7eb;text-align:right;white-space:nowrap"><strong>99 €</strong></td>
+            </tr>
+            <tr>
+                <td style="padding:12px 16px;border:1px solid #e5e7eb"><strong>Eigene Domain</strong><br>
+                    <span style="color:#64748b;font-size:13px">z.B. www.ihr-firmenname.de</span></td>
+                <td style="padding:12px 16px;border:1px solid #e5e7eb;text-align:right;white-space:nowrap"><strong>ab 15 €/Jahr</strong></td>
+            </tr>
+            <tr style="background:#f8fafc">
+                <td style="padding:12px 16px;border:1px solid #e5e7eb"><strong>Wartung & Updates</strong><br>
+                    <span style="color:#64748b;font-size:13px">Hosting, Pflege, maßgeschneiderte Änderungen</span></td>
+                <td style="padding:12px 16px;border:1px solid #e5e7eb;text-align:right;white-space:nowrap"><strong>10 €/Jahr</strong></td>
+            </tr>
+        </table>
+
         <p>Haben Sie Interesse oder Fragen? Antworten Sie einfach
         auf diese E-Mail oder rufen Sie mich an.</p>
 
@@ -94,7 +112,10 @@ def follow_up_1(
         </p>
 
         <p>Der Entwurf bleibt noch einige Tage online verfügbar.
-        Falls Sie Fragen haben oder Anpassungen wünschen,
+        Zur Erinnerung: Eine fertige Website mit eigener Domain
+        gibt es bei uns schon <strong>ab einmalig 99 €</strong>.</p>
+
+        <p>Falls Sie Fragen haben oder Anpassungen wünschen,
         stehe ich gerne zur Verfügung.</p>
 
         <p>Beste Grüße<br>
