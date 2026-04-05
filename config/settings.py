@@ -13,10 +13,17 @@ SHARED_CONFIG = {"extra": "ignore"}
 
 
 def _get_db_url() -> str:
-    """Resolve database URL, ignoring Railway's auto-injected DATABASE_URL."""
-    return os.environ.get(
-        "WEBREACH_DATABASE_URL", "sqlite:///data/outreach.db"
-    )
+    """Resolve database URL. Checks WEBREACH_DATABASE_URL first, then
+    falls back to Railway's DATABASE_URL if it points to PostgreSQL."""
+    url = os.environ.get("WEBREACH_DATABASE_URL", "")
+    if url:
+        return url.replace("postgres://", "postgresql://", 1)
+
+    railway_url = os.environ.get("DATABASE_URL", "")
+    if railway_url and railway_url.startswith(("postgres", "postgresql")):
+        return railway_url.replace("postgres://", "postgresql://", 1)
+
+    return "sqlite:///data/outreach.db"
 
 
 class GoogleSettings(BaseSettings):
