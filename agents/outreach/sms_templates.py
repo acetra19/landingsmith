@@ -14,8 +14,8 @@ def initial_sms(
     return (
         f"Guten Tag! Wir haben eine kostenlose Website fuer "
         f"{lead.business_name} erstellt: {preview_url} "
-        f"- Interesse? Schreiben Sie uns: james@amplivo.net "
-        f"oder antworten Sie auf diese SMS. {sender_name}"
+        f"- Interesse? Schreiben Sie uns an james@amplivo.net. "
+        f"LG {sender_name}"
     )
 
 
@@ -27,5 +27,6 @@ def follow_up_sms(
     return (
         f"Kurze Erinnerung: Ihr kostenloser Website-Entwurf fuer "
         f"{lead.business_name} ist noch online: {preview_url} "
-        f"- Fragen? james@amplivo.net oder einfach antworten. {sender_name}"
+        f"- Fragen? Melden Sie sich gerne: james@amplivo.net. "
+        f"LG {sender_name}"
     )

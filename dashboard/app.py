@@ -6,7 +6,7 @@ This single app runs on Railway and handles everything.
 import logging
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 logging.basicConfig(level=logging.INFO)
@@ -71,7 +71,11 @@ def startup():
 
 
 @app.get("/", response_class=HTMLResponse)
-def dashboard_ui():
+def root(request: Request):
+    host = request.headers.get("host", "")
+    if "amplivo" in host.lower():
+        from dashboard.amplivo import AMPLIVO_HTML
+        return AMPLIVO_HTML
     return DASHBOARD_HTML
 
 
