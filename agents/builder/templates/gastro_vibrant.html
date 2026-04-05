@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">{{ business_name }}</a>
+        <div class="nav-links">
+            <a href="#menu">Angebot</a>
+            <a href="#about">Info</a>
+            <a href="#contact">Kontakt</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-inner">
+        <span class="hero-badge">{{ business_type or 'Restaurant' }} in {{ address.split(',')[-2] if address and ',' in address else 'Ihrer Naehe' }}</span>
+        <h1>{{ headline }}</h1>
+        <p class="hero-sub">{{ subheadline }}</p>
+        <div class="hero-row">
+            <a href="tel:{{ phone or '#' }}" class="btn btn-hot">{{ cta_text }}</a>
+            {% if rating %}
+            <div class="hero-stars">{{ '★' * (rating | int) }} <span>{{ rating }}/5</span></div>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<div class="accent-bar">
+    <div class="container bar-inner">
+        <span>🕐 Frisch zubereitet</span>
+        <span>📍 {{ address.split(',')[0] if address and ',' in address else 'Vor Ort geniessen' }}</span>
+        {% if phone %}<span>📞 {{ phone }}</span>{% endif %}
+    </div>
+</div>
+
+<section id="menu" class="section">
+    <div class="container">
+        <h2 class="section-title">Unser Angebot</h2>
+        <div class="menu-grid">
+            {% for service in services %}
+            <div class="menu-card">
+                <div class="menu-num">{{ loop.index }}</div>
+                <h3>{{ service }}</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section id="about" class="section section-dark">
+    <div class="container about-flex">
+        <div>
+            <h2>{{ business_name }}</h2>
+            <p>{{ about_text }}</p>
+        </div>
+        <div class="about-badge">
+            <span class="ab-num">{{ review_count or '50' }}+</span>
+            <span>zufriedene Gaeste</span>
+        </div>
+    </div>
+</section>
+
+{% if testimonial %}
+<section class="section">
+    <div class="container">
+        <blockquote class="testi">"{{ testimonial }}"</blockquote>
+    </div>
+</section>
+{% endif %}
+
+{% if hours %}
+<section class="section section-alt">
+    <div class="container">
+        <h2 class="section-title">Oeffnungszeiten</h2>
+        <div class="hours-wrap">
+            {% for line in hours %}<p>{{ line }}</p>{% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section id="contact" class="section section-cta">
+    <div class="container cta-center">
+        <h2>Hunger? Jetzt bestellen!</h2>
+        {% if phone %}<a href="tel:{{ phone }}" class="btn btn-hot btn-lg">📞 {{ phone }}</a>{% endif %}
+        {% if address %}<p class="cta-addr">📍 {{ address }}</p>{% endif %}
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><p>{{ footer_text }}</p></div></footer>
+{% endblock %}

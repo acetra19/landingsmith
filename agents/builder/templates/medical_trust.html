@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">{{ business_name }}</a>
+        <div class="nav-links">
+            <a href="#services">Leistungen</a>
+            <a href="#about">Praxis</a>
+            <a href="#contact">Termin</a>
+        </div>
+        {% if phone %}<a href="tel:{{ phone }}" class="nav-phone">📞 {{ phone }}</a>{% endif %}
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container hero-center">
+        <h1>{{ headline }}</h1>
+        <p class="hero-sub">{{ subheadline }}</p>
+        <a href="#contact" class="btn btn-trust">{{ cta_text }}</a>
+        <div class="trust-row">
+            <div class="trust-item">✓ Professionell</div>
+            <div class="trust-item">✓ Erfahren</div>
+            <div class="trust-item">✓ Einfuehlsam</div>
+        </div>
+    </div>
+</header>
+
+{% if rating %}
+<div class="rating-strip">
+    <div class="container rating-inner">
+        <span class="stars">{{ '★' * (rating | int) }}{{ '☆' * (5 - rating | int) }}</span>
+        <span>{{ rating }}/5 aus {{ review_count }} Bewertungen auf Google</span>
+    </div>
+</div>
+{% endif %}
+
+<section id="services" class="section">
+    <div class="container">
+        <h2 class="section-title">Unsere Leistungen</h2>
+        <div class="service-grid">
+            {% for service in services %}
+            <div class="svc-card">
+                <div class="svc-dot"></div>
+                <h3>{{ service }}</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section id="about" class="section section-tint">
+    <div class="container about-box">
+        <h2>Ueber unsere Praxis</h2>
+        <p>{{ about_text }}</p>
+    </div>
+</section>
+
+{% if testimonial %}
+<section class="section">
+    <div class="container">
+        <div class="review-card">
+            <span class="rc-stars">★★★★★</span>
+            <p>{{ testimonial }}</p>
+            <span class="rc-src">— Google Bewertung</span>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if hours %}
+<section class="section section-tint">
+    <div class="container">
+        <h2 class="section-title">Sprechzeiten</h2>
+        <div class="hours-clean">
+            {% for line in hours %}<p>{{ line }}</p>{% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section id="contact" class="section section-cta">
+    <div class="container cta-center">
+        <h2>Termin vereinbaren</h2>
+        <p>Wir sind fuer Sie da — rufen Sie uns an oder kommen Sie vorbei.</p>
+        {% if phone %}<a href="tel:{{ phone }}" class="btn btn-trust btn-lg">📞 Jetzt anrufen</a>{% endif %}
+        {% if address %}<p class="cta-addr">📍 {{ address }}</p>{% endif %}
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><p>{{ footer_text }}</p></div></footer>
+{% endblock %}

@@ -27,25 +27,59 @@ PROVIDER_DEFAULTS = {
 
 
 STYLE_FONT_MAP = {
-    "bold_dark": [
-        "Space Grotesk", "Outfit", "Sora", "Manrope", "Plus Jakarta Sans",
-    ],
-    "clean_professional": [
-        "Inter", "DM Sans", "Nunito Sans", "Figtree", "Geist",
-    ],
-    "elegant_warm": [
-        "Cormorant Garamond", "Playfair Display", "Lora", "Libre Baskerville", "EB Garamond",
-    ],
+    "bold_dark": ["Space Grotesk", "Outfit", "Sora", "Manrope"],
+    "clean_professional": ["Inter", "DM Sans", "Nunito Sans", "Figtree"],
+    "elegant_warm": ["Cormorant Garamond", "Playfair Display", "Lora", "Libre Baskerville"],
+    "gastro_vibrant": ["Poppins", "Josefin Sans", "Nunito", "Rubik"],
+    "medical_trust": ["Source Sans 3", "Nunito", "Open Sans", "Lato"],
+    "craft_industrial": ["Barlow", "Barlow Condensed", "Oswald", "Roboto Condensed"],
+    "beauty_glow": ["Quicksand", "Raleway", "Comfortaa", "Nunito"],
+    "minimal_zen": ["Work Sans", "Karla", "Jost", "Outfit"],
+    "urban_edge": ["Archivo Black", "Bebas Neue", "Anton", "Russo One"],
+    "tech_grid": ["IBM Plex Sans", "JetBrains Mono", "Fira Code", "Source Code Pro"],
+    "local_cozy": ["Nunito", "Rubik", "Quicksand", "Varela Round"],
 }
 
 STYLE_BUSINESS_MAP = {
     "bold_dark": [
-        "barbershop", "friseur", "barber", "werkstatt", "auto", "kfz",
-        "tattoo", "gym", "fitness", "sport", "pizza", "doener", "imbiss",
+        "barbershop", "barber", "herren friseur", "herrenfriseur",
     ],
     "elegant_warm": [
-        "blumen", "florist", "boutique", "kosmetik", "beauty", "spa",
-        "cafe", "konditorei", "baeckerei", "mode", "schmuck", "hochzeit",
+        "blumen", "florist", "boutique", "mode", "schmuck", "hochzeit",
+        "braut", "atelier",
+    ],
+    "gastro_vibrant": [
+        "pizza", "pizzeria", "doener", "kebab", "imbiss", "restaurant",
+        "bistro", "grill", "asia", "sushi", "burger",
+    ],
+    "medical_trust": [
+        "arzt", "zahnarzt", "praxis", "physio", "therapie", "apotheke",
+        "orthop", "kinder", "augen", "haut", "heilpraktik",
+    ],
+    "craft_industrial": [
+        "werkstatt", "handwerk", "heizung", "sanitaer", "elektr",
+        "schlosser", "montage", "bau", "dach", "maler", "tischler",
+        "kfz", "auto werkstatt", "meisterbetrieb",
+    ],
+    "beauty_glow": [
+        "kosmetik", "beauty", "spa", "nagel", "nail", "wimpern",
+        "lash", "skin", "pflege", "wellness",
+    ],
+    "minimal_zen": [
+        "yoga", "meditation", "massage", "reiki", "akupunktur",
+        "coaching", "beratung",
+    ],
+    "urban_edge": [
+        "tattoo", "piercing", "streetwear", "skate", "graffiti",
+        "vinyl", "record",
+    ],
+    "tech_grid": [
+        "computer", "it", "reparatur", "elektronik", "handy",
+        "smartphone", "pc", "software", "web", "digital",
+    ],
+    "local_cozy": [
+        "baeckerei", "cafe", "konditorei", "eis", "tee", "kiosk",
+        "laden", "geschenk", "keramik", "wolle", "buchladen",
     ],
 }
 
@@ -112,27 +146,60 @@ Instead use creative, personality-driven headlines. Examples:
 Make it sound professional, trustworthy, and local."""
 
 COLOR_RULES = {
-    "bold_dark": """For dark/bold style — choose SATURATED, vivid accent colors:
-- Fiery reds/oranges (#ef4444, #f97316, #dc2626), electric blues (#3b82f6, #2563eb),
-  neon greens (#22c55e, #10b981), hot pinks (#ec4899, #f43f5e), bright purples (#8b5cf6, #a855f7)
-- bg should be dark: #0a0a0f or #111118
-- text should be light: #e4e4e7 or #fafafa
-- Make it feel EDGY and MODERN""",
+    "bold_dark": """Dark/bold style — SATURATED, vivid accents:
+- Reds (#ef4444, #dc2626), oranges (#f97316), electric blues (#3b82f6),
+  neon greens (#22c55e), hot pinks (#ec4899), purples (#8b5cf6)
+- bg: #0a0a0f | text: #e4e4e7 — EDGY and MODERN""",
 
-    "clean_professional": """For clean/professional style — choose REFINED, trustworthy colors:
-- Deep blues (#1e40af, #1d4ed8, #2563eb), teals (#0d9488, #0891b2), 
-  slate (#334155, #475569), greens (#047857, #059669), indigo (#4338ca, #4f46e5)
-- bg: #ffffff or subtle #f8fafc
-- text: dark #1e293b or #0f172a
-- Make it feel PREMIUM and TRUSTWORTHY""",
+    "clean_professional": """Clean/professional — REFINED, trustworthy:
+- Blues (#1d4ed8, #2563eb), teals (#0d9488), slate (#475569),
+  greens (#059669), indigo (#4f46e5)
+- bg: #ffffff | text: #1e293b — PREMIUM and CLEAN""",
 
-    "elegant_warm": """For elegant/warm style — choose RICH, sophisticated colors:
-- Deep wines (#881337, #9f1239), forest greens (#166534, #15803d), 
-  navy (#1e3a5f, #1e40af), burgundy (#7f1d1d), copper/amber (#b45309, #d97706),
-  muted rose (#be123c, #e11d48)
-- bg: warm white #fffbf5 or #faf8f5
-- text: warm dark #292524 or #1c1917
-- Make it feel SOPHISTICATED and WARM""",
+    "elegant_warm": """Elegant/warm — RICH, sophisticated:
+- Wines (#881337, #9f1239), forest greens (#166534), burgundy (#7f1d1d),
+  copper (#b45309), muted rose (#be123c)
+- bg: #fffbf5 | text: #292524 — SOPHISTICATED""",
+
+    "gastro_vibrant": """Gastro/vibrant — APPETIZING, warm, inviting:
+- Warm reds (#dc2626, #b91c1c), rich oranges (#ea580c, #c2410c),
+  olive (#65a30d), tomato (#e11d48), warm amber (#d97706)
+- bg: #fffaf5 | text: #1c1917 — APPETIZING and WARM""",
+
+    "medical_trust": """Medical/trust — CALMING, clinical, trustworthy:
+- Calming blues (#0284c7, #0369a1), teals (#0d9488, #0f766e),
+  soft greens (#059669, #047857), professional blue (#1e40af)
+- bg: #ffffff | text: #1e293b — CALMING and TRUSTWORTHY""",
+
+    "craft_industrial": """Craft/industrial — STRONG, reliable, bold:
+- Safety yellows (#eab308, #ca8a04), construction orange (#ea580c),
+  steel blue (#475569), industrial red (#dc2626), dark teal (#0f766e)
+- bg: #fafaf9 | text: #1c1917 — STRONG and RELIABLE""",
+
+    "beauty_glow": """Beauty/glow — SOFT, luxurious, radiant:
+- Soft pinks (#ec4899, #db2777), rose (#e11d48, #f43f5e),
+  lavender (#8b5cf6, #a78bfa), soft coral (#fb7185), mauve (#a855f7)
+- bg: #fdf4ff or #fff1f2 | text: #1e1b4b — SOFT and LUXURIOUS""",
+
+    "minimal_zen": """Minimal/zen — CALM, serene, muted:
+- Sage (#65a30d, #4d7c0f), muted teal (#0d9488), soft stone (#78716c),
+  gentle blue (#6366f1), forest (#166534)
+- bg: #fafaf9 | text: #44403c — SERENE and MINIMAL""",
+
+    "urban_edge": """Urban/edge — HIGH-CONTRAST, neon, bold:
+- Neon green (#22c55e, #4ade80), electric cyan (#06b6d4, #22d3ee),
+  hot magenta (#d946ef), acid yellow (#facc15), neon red (#ef4444)
+- bg: #000000 | text: #ffffff — BOLD and EDGY""",
+
+    "tech_grid": """Tech/grid — FUTURISTIC, digital, precise:
+- Cyber blue (#3b82f6, #60a5fa), matrix green (#22c55e, #4ade80),
+  electric purple (#8b5cf6), cyan (#06b6d4), terminal amber (#f59e0b)
+- bg: #0c0c14 | text: #c8cad0 — TECHY and FUTURISTIC""",
+
+    "local_cozy": """Local/cozy — WARM, friendly, inviting:
+- Warm terracotta (#c2410c, #ea580c), forest green (#166534, #15803d),
+  warm blue (#1d4ed8), cozy amber (#b45309), brick (#92400e)
+- bg: #faf6f1 | text: #292524 — COZY and FRIENDLY""",
 }
 
 
@@ -155,11 +222,25 @@ class ContentGenerator:
 
     def _pick_style(self, business_name: str, business_type: str) -> str:
         """Choose a design style based on the business type."""
+        import random
         combined = f"{business_name} {business_type}".lower()
+
+        matches = []
         for style, keywords in STYLE_BUSINESS_MAP.items():
             if any(kw in combined for kw in keywords):
-                return style
-        return "clean_professional"
+                matches.append(style)
+
+        if matches:
+            return matches[0]
+
+        if "friseur" in combined or "salon" in combined or "hair" in combined:
+            return random.choice(["bold_dark", "beauty_glow", "clean_professional"])
+
+        if "reinigung" in combined or "schneider" in combined or "schuh" in combined:
+            return random.choice(["clean_professional", "local_cozy", "craft_industrial"])
+
+        all_styles = list(STYLE_FONT_MAP.keys())
+        return random.choice(all_styles)
 
     def _pick_font(self, style: str) -> str:
         """Pick a random font for the given style to add variety."""
@@ -241,18 +322,17 @@ class ContentGenerator:
     def _sanitize_colors(colors: dict, style: str = "clean_professional") -> dict:
         """Validate colors per style, with sensible fallbacks."""
         style_defaults = {
-            "bold_dark": {
-                "primary": "#ef4444", "secondary": "#f97316",
-                "bg": "#0a0a0f", "text": "#e4e4e7",
-            },
-            "clean_professional": {
-                "primary": "#2563eb", "secondary": "#f59e0b",
-                "bg": "#ffffff", "text": "#1e293b",
-            },
-            "elegant_warm": {
-                "primary": "#881337", "secondary": "#d97706",
-                "bg": "#fffbf5", "text": "#292524",
-            },
+            "bold_dark": {"primary": "#ef4444", "secondary": "#f97316", "bg": "#0a0a0f", "text": "#e4e4e7"},
+            "clean_professional": {"primary": "#2563eb", "secondary": "#f59e0b", "bg": "#ffffff", "text": "#1e293b"},
+            "elegant_warm": {"primary": "#881337", "secondary": "#d97706", "bg": "#fffbf5", "text": "#292524"},
+            "gastro_vibrant": {"primary": "#dc2626", "secondary": "#ea580c", "bg": "#fffaf5", "text": "#1c1917"},
+            "medical_trust": {"primary": "#0284c7", "secondary": "#0d9488", "bg": "#ffffff", "text": "#1e293b"},
+            "craft_industrial": {"primary": "#eab308", "secondary": "#ea580c", "bg": "#fafaf9", "text": "#1c1917"},
+            "beauty_glow": {"primary": "#ec4899", "secondary": "#a855f7", "bg": "#fdf4ff", "text": "#1e1b4b"},
+            "minimal_zen": {"primary": "#65a30d", "secondary": "#0d9488", "bg": "#fafaf9", "text": "#44403c"},
+            "urban_edge": {"primary": "#22c55e", "secondary": "#06b6d4", "bg": "#000000", "text": "#ffffff"},
+            "tech_grid": {"primary": "#3b82f6", "secondary": "#22c55e", "bg": "#0c0c14", "text": "#c8cad0"},
+            "local_cozy": {"primary": "#c2410c", "secondary": "#166534", "bg": "#faf6f1", "text": "#292524"},
         }
         defaults = style_defaults.get(style, style_defaults["clean_professional"])
 

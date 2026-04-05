@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">{{ business_name }}</a>
+        <div class="nav-links"><a href="#services">Angebot</a><a href="#about">Studio</a><a href="#contact">Termin</a></div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container hero-inner">
+        <span class="hero-spark">✨</span>
+        <h1>{{ headline }}</h1>
+        <p class="hero-sub">{{ subheadline }}</p>
+        <a href="#contact" class="btn btn-glow">{{ cta_text }}</a>
+        {% if rating %}
+        <div class="hero-reviews">{{ '★' * (rating | int) }} <span>{{ rating }} von 5</span></div>
+        {% endif %}
+    </div>
+</header>
+
+<section id="services" class="section">
+    <div class="container">
+        <h2 class="center-h">Unsere Behandlungen</h2>
+        <div class="beauty-grid">
+            {% for service in services %}
+            <div class="beauty-card">
+                <div class="bc-circle"></div>
+                <h3>{{ service }}</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section id="about" class="section section-soft">
+    <div class="container about-center">
+        <h2>Ueber unser Studio</h2>
+        <p>{{ about_text }}</p>
+    </div>
+</section>
+
+{% if testimonial %}
+<section class="section">
+    <div class="container"><div class="quote-soft"><p>"{{ testimonial }}"</p></div></div>
+</section>
+{% endif %}
+
+{% if hours %}
+<section class="section section-soft">
+    <div class="container">
+        <h2 class="center-h">Oeffnungszeiten</h2>
+        <div class="hours-soft">{% for line in hours %}<p>{{ line }}</p>{% endfor %}</div>
+    </div>
+</section>
+{% endif %}
+
+<section id="contact" class="section section-cta">
+    <div class="container cta-glow">
+        <h2>Bereit fuer Ihr Verwoehnprogramm?</h2>
+        {% if phone %}<a href="tel:{{ phone }}" class="btn btn-glow">📞 {{ phone }}</a>{% endif %}
+        {% if address %}<p class="cta-loc">{{ address }}</p>{% endif %}
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><p>{{ footer_text }}</p></div></footer>
+{% endblock %}

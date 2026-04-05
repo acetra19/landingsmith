@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">{{ business_name }}</a>
+        <div class="nav-links"><a href="#services">Leistungen</a><a href="#contact">Kontakt</a></div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container">
+        <div class="hero-label">{{ business_type or 'Handwerk' }}</div>
+        <h1>{{ headline }}</h1>
+        <p class="hero-sub">{{ subheadline }}</p>
+        <a href="#contact" class="btn btn-craft">{{ cta_text }}</a>
+    </div>
+</header>
+
+<section id="services" class="section">
+    <div class="container">
+        <div class="section-bar"><span>Unsere Leistungen</span></div>
+        <div class="craft-grid">
+            {% for service in services %}
+            <div class="craft-card">
+                <span class="craft-idx">{{ '%02d' | format(loop.index) }}</span>
+                <h3>{{ service }}</h3>
+                <div class="craft-line"></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section section-accent">
+    <div class="container split">
+        <div>
+            <h2>{{ business_name }}</h2>
+            <p>{{ about_text }}</p>
+        </div>
+        <div class="num-block">
+            {% if rating %}<div class="nb"><span>{{ rating }}</span>★ Rating</div>{% endif %}
+            <div class="nb"><span>{{ review_count or '50' }}+</span>Bewertungen</div>
+        </div>
+    </div>
+</section>
+
+{% if testimonial %}
+<section class="section"><div class="container"><blockquote class="testi">"{{ testimonial }}"</blockquote></div></section>
+{% endif %}
+
+{% if hours %}
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-bar"><span>Oeffnungszeiten</span></div>
+        <div class="hours-raw">{% for line in hours %}<p>{{ line }}</p>{% endfor %}</div>
+    </div>
+</section>
+{% endif %}
+
+<section id="contact" class="section section-cta">
+    <div class="container cta-left">
+        <h2>Projekt besprechen?</h2>
+        {% if phone %}<a href="tel:{{ phone }}" class="btn btn-craft btn-lg">{{ phone }}</a>{% endif %}
+        {% if address %}<p class="addr">{{ address }}</p>{% endif %}
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><p>{{ footer_text }}</p></div></footer>
+{% endblock %}

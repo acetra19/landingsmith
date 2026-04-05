@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">{{ business_name }}</a>
+        <div class="nav-links"><a href="#services">Angebot</a><a href="#contact">Kontakt</a></div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container hero-inner">
+        <h1>{{ headline }}</h1>
+        <div class="hero-line"></div>
+        <p class="hero-sub">{{ subheadline }}</p>
+        <a href="#contact" class="btn btn-zen">{{ cta_text }}</a>
+    </div>
+</header>
+
+<section id="services" class="section">
+    <div class="container">
+        <div class="zen-list">
+            {% for service in services %}
+            <div class="zen-item">
+                <span class="zen-dash">—</span>
+                <h3>{{ service }}</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container zen-text">
+        <p>{{ about_text }}</p>
+    </div>
+</section>
+
+{% if testimonial %}
+<section class="section"><div class="container zen-text"><blockquote>"{{ testimonial }}"</blockquote></div></section>
+{% endif %}
+
+{% if hours %}
+<section class="section">
+    <div class="container zen-text">
+        <h3 class="zen-label">Zeiten</h3>
+        {% for line in hours %}<p class="zen-hour">{{ line }}</p>{% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if rating %}
+<section class="section">
+    <div class="container zen-text">
+        <div class="zen-rating">{{ '●' * (rating | int) }}{{ '○' * (5 - rating | int) }} <span>{{ rating }}/5</span></div>
+    </div>
+</section>
+{% endif %}
+
+<section id="contact" class="section section-end">
+    <div class="container zen-text">
+        <h2>Kontakt</h2>
+        <div class="zen-contact">
+            {% if phone %}<a href="tel:{{ phone }}">{{ phone }}</a>{% endif %}
+            {% if address %}<span>{{ address }}</span>{% endif %}
+        </div>
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><p>{{ footer_text }}</p></div></footer>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">{{ business_name }}</a>
+        <a href="#contact" class="nav-btn">→ Kontakt</a>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="hero-noise"></div>
+    <div class="container hero-inner">
+        <h1>{{ headline }}</h1>
+        <p class="hero-sub">{{ subheadline }}</p>
+        <a href="#contact" class="btn btn-neon">{{ cta_text }}</a>
+    </div>
+</header>
+
+<section id="services" class="section">
+    <div class="container">
+        <div class="edge-grid">
+            {% for service in services %}
+            <div class="edge-card">
+                <span class="edge-num">#{{ loop.index }}</span>
+                <h3>{{ service }}</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section section-inv">
+    <div class="container edge-about">
+        <div class="edge-marker">INFO</div>
+        <p>{{ about_text }}</p>
+        {% if rating %}
+        <div class="edge-stars">{{ '★' * (rating | int) }} {{ rating }}/5 ({{ review_count }})</div>
+        {% endif %}
+    </div>
+</section>
+
+{% if testimonial %}
+<section class="section"><div class="container"><div class="edge-quote">{{ testimonial }}</div></div></section>
+{% endif %}
+
+{% if hours %}
+<section class="section section-inv">
+    <div class="container">
+        <div class="edge-marker">ZEITEN</div>
+        <div class="edge-hours">{% for line in hours %}<p>{{ line }}</p>{% endfor %}</div>
+    </div>
+</section>
+{% endif %}
+
+<section id="contact" class="section section-cta">
+    <div class="container cta-edge">
+        <h2>Let's go.</h2>
+        {% if phone %}<a href="tel:{{ phone }}" class="btn btn-neon btn-lg">{{ phone }}</a>{% endif %}
+        {% if address %}<p class="edge-addr">{{ address }}</p>{% endif %}
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><p>{{ footer_text }}</p></div></footer>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">{{ business_name }}</a>
+        <div class="nav-links"><a href="#about">Ueber uns</a><a href="#services">Angebot</a><a href="#contact">Besuch</a></div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container hero-inner">
+        <div class="hero-wave">~</div>
+        <h1>{{ headline }}</h1>
+        <p class="hero-sub">{{ subheadline }}</p>
+        <a href="#contact" class="btn btn-cozy">{{ cta_text }}</a>
+        {% if rating %}
+        <div class="hero-trust">
+            <span class="ht-stars">{{ '★' * (rating | int) }}</span>
+            <span>{{ rating }} Sterne · {{ review_count }} Bewertungen</span>
+        </div>
+        {% endif %}
+    </div>
+</header>
+
+<section id="about" class="section">
+    <div class="container cozy-center">
+        <div class="cozy-divider">♥</div>
+        <p class="cozy-text">{{ about_text }}</p>
+    </div>
+</section>
+
+<section id="services" class="section section-warm">
+    <div class="container">
+        <h2 class="cozy-h">Unser Angebot</h2>
+        <div class="cozy-grid">
+            {% for service in services %}
+            <div class="cozy-card">
+                <h3>{{ service }}</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% if testimonial %}
+<section class="section">
+    <div class="container cozy-center">
+        <blockquote class="cozy-quote">"{{ testimonial }}"</blockquote>
+    </div>
+</section>
+{% endif %}
+
+{% if hours %}
+<section class="section section-warm">
+    <div class="container">
+        <h2 class="cozy-h">Oeffnungszeiten</h2>
+        <div class="cozy-hours">{% for line in hours %}<p>{{ line }}</p>{% endfor %}</div>
+    </div>
+</section>
+{% endif %}
+
+<section id="contact" class="section section-cta">
+    <div class="container cozy-center">
+        <h2>Kommen Sie vorbei!</h2>
+        <div class="cozy-contact">
+            {% if phone %}<a href="tel:{{ phone }}" class="cc-item">📞 {{ phone }}</a>{% endif %}
+            {% if address %}<span class="cc-item">📍 {{ address }}</span>{% endif %}
+        </div>
+        {% if phone %}<a href="tel:{{ phone }}" class="btn btn-cozy-inv">{{ cta_text }}</a>{% endif %}
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><p>{{ footer_text }}</p></div></footer>
+{% endblock %}

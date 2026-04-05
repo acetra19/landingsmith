@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">&lt;{{ business_name }}/&gt;</a>
+        <div class="nav-links"><a href="#services">_services</a><a href="#contact">_contact</a></div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="container hero-inner">
+        <div class="hero-tag">// {{ business_type or 'tech' }}</div>
+        <h1>{{ headline }}</h1>
+        <p class="hero-sub">{{ subheadline }}</p>
+        <a href="#contact" class="btn btn-tech">{{ cta_text }} →</a>
+    </div>
+</header>
+
+<section id="services" class="section">
+    <div class="container">
+        <h2 class="mono-h">$ services --list</h2>
+        <div class="tech-cards">
+            {% for service in services %}
+            <div class="tech-card">
+                <span class="tc-tag">0x{{ '%02x' | format(loop.index) }}</span>
+                <h3>{{ service }}</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container tech-about">
+        <h2 class="mono-h">$ about</h2>
+        <p>{{ about_text }}</p>
+        {% if rating %}
+        <div class="tech-stat">
+            <span class="ts-val">{{ rating }}</span><span class="ts-lbl">/5.0 rating</span>
+            <span class="ts-val" style="margin-left:24px">{{ review_count }}</span><span class="ts-lbl">reviews</span>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% if testimonial %}
+<section class="section"><div class="container"><div class="tech-quote"><span class="tq-pre">&gt;</span> {{ testimonial }}</div></div></section>
+{% endif %}
+
+{% if hours %}
+<section class="section section-alt">
+    <div class="container">
+        <h2 class="mono-h">$ hours</h2>
+        <div class="tech-hours">{% for line in hours %}<p><span class="th-dot">●</span> {{ line }}</p>{% endfor %}</div>
+    </div>
+</section>
+{% endif %}
+
+<section id="contact" class="section section-cta">
+    <div class="container cta-tech">
+        <h2>$ connect</h2>
+        <div class="cta-row">
+            {% if phone %}<a href="tel:{{ phone }}" class="btn btn-tech">📞 {{ phone }}</a>{% endif %}
+        </div>
+        {% if address %}<p class="cta-loc">📍 {{ address }}</p>{% endif %}
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><p>{{ footer_text }}</p></div></footer>
+{% endblock %}
