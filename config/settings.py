@@ -1,6 +1,11 @@
-from pydantic_settings import BaseSettings
-from pydantic import Field
 from pathlib import Path
+
+from dotenv import load_dotenv
+from pydantic import Field
+from pydantic_settings import BaseSettings
+
+ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(ENV_FILE, override=True)
 
 
 class GoogleSettings(BaseSettings):
@@ -18,7 +23,7 @@ class SerpApiSettings(BaseSettings):
 
 
 class LLMSettings(BaseSettings):
-    provider: str = "groq"  # "groq" or "openai"
+    provider: str = "groq"
     api_key: str = ""
     model: str = "llama-3.3-70b-versatile"
     base_url: str = "https://api.groq.com/openai/v1"
@@ -39,7 +44,7 @@ class RailwaySettings(BaseSettings):
 class EmailSettings(BaseSettings):
     resend_api_key: str = ""
     from_email: str = "outreach@example.com"
-    from_name: str = "WebReach"
+    from_name: str = "LandingSmith"
 
     model_config = {"env_prefix": "OUTREACH_"}
 
@@ -71,8 +76,6 @@ class Settings(BaseSettings):
     pipeline: PipelineSettings = Field(default_factory=PipelineSettings)
 
     model_config = {
-        "env_file": ".env",
-        "env_file_encoding": "utf-8",
         "extra": "ignore",
         "populate_by_name": True,
     }
