@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">{{ business_name }}</a>
+        <div class="nav-links">
+            <a href="#services">Leistungen</a>
+            <a href="#about">Info</a>
+        </div>
+        <a href="#contact" class="nav-btn">{{ cta_text }}</a>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-inner">
+        <h1>{{ headline }}</h1>
+        <p class="hero-sub">{{ subheadline }}</p>
+        <a href="#contact" class="btn btn-glow">{{ cta_text }}</a>
+        {% if rating %}
+        <div class="hero-rating">
+            <span class="stars">{{ '★' * (rating | int) }}</span>
+            <span>{{ rating }}/5 &middot; {{ review_count }} Bewertungen</span>
+        </div>
+        {% endif %}
+    </div>
+</header>
+
+<section id="services" class="section">
+    <div class="container">
+        <h2 class="section-heading">Was wir bieten</h2>
+        <div class="services-row">
+            {% for service in services %}
+            <div class="s-card">
+                <span class="s-index">/0{{ loop.index }}</span>
+                <h3>{{ service }}</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section id="about" class="section section-split">
+    <div class="container split-grid">
+        <div class="split-text">
+            <h2>{{ business_name }}</h2>
+            <p>{{ about_text }}</p>
+        </div>
+        <div class="split-stats">
+            {% if rating %}
+            <div class="stat-block">
+                <span class="stat-num">{{ rating }}</span>
+                <span class="stat-label">Google Rating</span>
+            </div>
+            {% endif %}
+            <div class="stat-block">
+                <span class="stat-num">{{ review_count or '50' }}+</span>
+                <span class="stat-label">Bewertungen</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if testimonial %}
+<section class="section">
+    <div class="container">
+        <div class="testimonial-card">
+            <p>"{{ testimonial }}"</p>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if hours %}
+<section class="section">
+    <div class="container">
+        <h2 class="section-heading">Oeffnungszeiten</h2>
+        <div class="hours-list">
+            {% for line in hours %}
+            <div class="h-row">{{ line }}</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section id="contact" class="section section-contact">
+    <div class="container contact-inner">
+        <h2>Jetzt Kontakt aufnehmen</h2>
+        <div class="contact-row">
+            {% if phone %}
+            <a href="tel:{{ phone }}" class="btn btn-glow">📞 {{ phone }}</a>
+            {% endif %}
+        </div>
+        {% if address %}
+        <p class="contact-addr">📍 {{ address }}</p>
+        {% endif %}
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <p>{{ footer_text }}</p>
+    </div>
+</footer>
+{% endblock %}

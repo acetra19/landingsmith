@@ -25,7 +25,7 @@ class WebsiteGenerator:
         )
 
     async def generate(
-        self, lead: Lead, template_name: str = "modern_landing"
+        self, lead: Lead
     ) -> tuple[str, str, WebsiteCopy]:
         copy = await self.content_gen.generate(
             business_name=lead.business_name,
@@ -37,6 +37,12 @@ class WebsiteGenerator:
             business_hours=lead.business_hours or {},
         )
 
+        template_name = copy.design_style
+        logger.info(
+            f"Using template '{template_name}' with font '{copy.font}' "
+            f"for {lead.business_name}"
+        )
+
         css = self._render_css(template_name, copy)
         html = self._render_html(template_name, lead, copy, css)
 
@@ -44,7 +50,7 @@ class WebsiteGenerator:
 
     def _render_css(self, template_name: str, copy: WebsiteCopy) -> str:
         css_template = self.jinja_env.get_template(f"{template_name}.css")
-        return css_template.render(colors=copy.color_scheme)
+        return css_template.render(colors=copy.color_scheme, font=copy.font)
 
     def _render_html(
         self,
@@ -61,6 +67,7 @@ class WebsiteGenerator:
 
         return html_template.render(
             business_name=lead.business_name,
+            business_type=lead.business_type or "",
             headline=copy.headline,
             subheadline=copy.subheadline,
             about_text=copy.about_text,
@@ -70,6 +77,7 @@ class WebsiteGenerator:
             footer_text=copy.footer_text,
             meta_description=copy.meta_description,
             css_content=css,
+            font_family=copy.font,
             phone=lead.phone or "",
             email=lead.email or "",
             address=lead.address or "",

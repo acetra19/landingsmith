@@ -36,7 +36,7 @@ class BuilderAgent(BaseAgent):
 
         website = Website(
             lead_id=lead.id,
-            template_name="modern_landing",
+            template_name=copy.design_style,
             html_content=html,
             css_content=css,
             generated_copy=copy.raw_json,

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav class="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">{{ business_name }}</a>
+        <div class="nav-links">
+            <a href="#about">Ueber uns</a>
+            <a href="#services">Leistungen</a>
+            <a href="#contact">Kontakt</a>
+        </div>
+        {% if phone %}
+        <a href="tel:{{ phone }}" class="nav-cta">{{ phone }}</a>
+        {% endif %}
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container hero-inner">
+        <span class="hero-tag">{{ business_type or 'Ihr Partner vor Ort' }}</span>
+        <h1 class="hero-title">{{ headline }}</h1>
+        <p class="hero-sub">{{ subheadline }}</p>
+        <div class="hero-actions">
+            <a href="#contact" class="btn btn-primary">{{ cta_text }}</a>
+            <a href="#about" class="btn btn-ghost">Mehr erfahren</a>
+        </div>
+        {% if rating %}
+        <div class="hero-proof">
+            <span class="stars">{{ '★' * (rating | int) }}{{ '☆' * (5 - rating | int) }}</span>
+            <span>{{ rating }}/5 aus {{ review_count }} Bewertungen</span>
+        </div>
+        {% endif %}
+    </div>
+</header>
+
+<section id="about" class="section">
+    <div class="container about-grid">
+        <div class="about-content">
+            <span class="eyebrow">Ueber uns</span>
+            <h2>{{ headline }}</h2>
+            <p>{{ about_text }}</p>
+            <a href="#contact" class="btn btn-outline">Kontakt aufnehmen</a>
+        </div>
+        <div class="about-visual">
+            <div class="visual-card">
+                <div class="visual-accent"></div>
+                <div class="visual-text">
+                    <span class="visual-big">{{ review_count or '10' }}+</span>
+                    <span class="visual-label">zufriedene Kunden</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="services" class="section section-alt">
+    <div class="container">
+        <span class="eyebrow center">Unsere Leistungen</span>
+        <h2 class="section-title">Was wir fuer Sie tun</h2>
+        <div class="services-grid">
+            {% for service in services %}
+            <div class="service-card">
+                <div class="service-num">0{{ loop.index }}</div>
+                <h3>{{ service }}</h3>
+                <div class="service-line"></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% if testimonial %}
+<section class="section">
+    <div class="container testimonial-wrap">
+        <div class="quote-mark">"</div>
+        <blockquote>{{ testimonial }}</blockquote>
+    </div>
+</section>
+{% endif %}
+
+{% if hours %}
+<section class="section section-alt">
+    <div class="container">
+        <span class="eyebrow center">Oeffnungszeiten</span>
+        <h2 class="section-title">Wir sind fuer Sie da</h2>
+        <div class="hours-grid">
+            {% for line in hours %}
+            <div class="hour-row">{{ line }}</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section id="contact" class="section section-cta">
+    <div class="container cta-inner">
+        <h2>Lassen Sie uns sprechen</h2>
+        <p>Wir freuen uns auf Ihre Anfrage</p>
+        <div class="contact-cards">
+            {% if phone %}
+            <a href="tel:{{ phone }}" class="c-card">
+                <span class="c-icon">📞</span>
+                <span class="c-label">Telefon</span>
+                <span class="c-value">{{ phone }}</span>
+            </a>
+            {% endif %}
+            {% if address %}
+            <div class="c-card">
+                <span class="c-icon">📍</span>
+                <span class="c-label">Adresse</span>
+                <span class="c-value">{{ address }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <span class="footer-logo">{{ business_name }}</span>
+        <p>{{ footer_text }}</p>
+    </div>
+</footer>
+{% endblock %}
