@@ -1,0 +1,358 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Barbershop Tümer in Berlin - Traditionelle Barbershop-Erfahrung">
+    <title>Barbershop Tümer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --primary: #663300;
+    --secondary: #CCCCCC;
+    --bg: #F5F5F5;
+    --text: #333333;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+body {
+    font-family: &#39;Inter&#39;, -apple-system, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* NAV */
+.nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+.logo {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--primary);
+    text-decoration: none;
+}
+.nav-links { display: flex; gap: 28px; }
+.nav-links a {
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--primary); }
+
+/* HERO */
+.hero {
+    padding: 140px 0 100px;
+    text-align: center;
+    background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 70%, black));
+    color: white;
+}
+.hero-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 16px;
+}
+.hero-sub {
+    font-size: 1.15rem;
+    opacity: 0.9;
+    max-width: 540px;
+    margin: 0 auto 32px;
+}
+
+/* BUTTONS */
+.btn {
+    display: inline-block;
+    padding: 14px 36px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.btn-primary {
+    background: white;
+    color: var(--primary);
+}
+.btn-light {
+    background: white;
+    color: var(--primary);
+    margin-top: 24px;
+}
+
+/* SECTIONS */
+.section { padding: 80px 0; }
+.section-alt { background: #f8f9fb; }
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
+}
+.section-title.light { color: white; }
+
+.about-text {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 1.05rem;
+    color: #555;
+}
+
+/* RATING */
+.rating-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 24px;
+}
+.stars { color: var(--secondary); font-size: 1.3rem; }
+.rating-text { color: #888; font-size: 0.95rem; }
+
+/* SERVICES GRID */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+}
+.service-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s;
+}
+.service-card:hover { transform: translateY(-4px); }
+.service-icon {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-weight: 700;
+}
+.service-card h3 { font-size: 1rem; font-weight: 600; }
+
+/* TESTIMONIAL */
+.testimonial {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    font-style: italic;
+    color: #555;
+    font-size: 1.1rem;
+    border-left: 4px solid var(--primary);
+    padding-left: 20px;
+}
+
+/* HOURS */
+.hours-list {
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: center;
+}
+.hours-list p { padding: 6px 0; border-bottom: 1px solid #eee; }
+
+/* CTA / CONTACT */
+.section-cta {
+    background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 70%, black));
+    color: white;
+    text-align: center;
+}
+.contact-info {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 12px;
+}
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    text-decoration: none;
+    font-size: 1.05rem;
+}
+.contact-icon { font-size: 1.3rem; }
+
+/* FOOTER */
+.footer {
+    padding: 24px 0;
+    text-align: center;
+    color: #999;
+    font-size: 0.85rem;
+    border-top: 1px solid #eee;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hero { padding: 120px 0 80px; }
+    .services-grid { grid-template-columns: 1fr 1fr; }
+    .contact-info { flex-direction: column; align-items: center; }
+}
+@media (max-width: 480px) {
+    .services-grid { grid-template-columns: 1fr; }
+}
+    </style>
+</head>
+<body>
+    
+<nav class="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">Barbershop Tümer</a>
+        <div class="nav-links">
+            <a href="#about">Über uns</a>
+            <a href="#services">Leistungen</a>
+            <a href="#contact">Kontakt</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container hero-inner">
+        <h1 class="hero-title">Ihr Barbershop in Berlin</h1>
+        <p class="hero-sub">Traditionelle Barbershop-Erfahrung in der Mitte Berlins</p>
+        <a href="#contact" class="btn btn-primary">Jetzt Termin vereinbaren</a>
+    </div>
+</header>
+
+<section id="about" class="section">
+    <div class="container">
+        <h2 class="section-title">Über uns</h2>
+        <p class="about-text">Willkommen im Barbershop Tümer, Ihrem zuverlässigen Partner für traditionelle Barbershop-Dienstleistungen in Berlin. Unsere erfahrenen Friseure bieten eine breite Palette an Dienstleistungen, von klassischen Haarschnitten bis hin zu modernen Styling-Trends. Wir legen Wert auf eine persönliche Atmosphäre und höchste Qualität.</p>
+        
+        <div class="rating-badge">
+            <span class="stars">★★★★☆</span>
+            <span class="rating-text">4.9/5 (254 Bewertungen)</span>
+        </div>
+        
+    </div>
+</section>
+
+<section id="services" class="section section-alt">
+    <div class="container">
+        <h2 class="section-title">Unsere Leistungen</h2>
+        <div class="services-grid">
+            
+            <div class="service-card">
+                <div class="service-icon">1</div>
+                <h3>Haarschnitte</h3>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">2</div>
+                <h3>Bartpflege</h3>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">3</div>
+                <h3>Rasieren</h3>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">4</div>
+                <h3>Styling</h3>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">Kundenstimmen</h2>
+        <blockquote class="testimonial">
+            <p>"Sehr zufrieden mit dem Service! Ich komme auf jeden Fall wieder."</p>
+        </blockquote>
+    </div>
+</section>
+
+
+
+<section class="section section-alt">
+    <div class="container">
+        <h2 class="section-title">Öffnungszeiten</h2>
+        <div class="hours-list">
+            
+            <p>Monday: Closed</p>
+            
+            <p>Tuesday: 9:00 AM – 6:30 PM</p>
+            
+            <p>Wednesday: 9:00 AM – 6:30 PM</p>
+            
+            <p>Thursday: 9:00 AM – 6:30 PM</p>
+            
+            <p>Friday: 9:00 AM – 6:30 PM</p>
+            
+            <p>Saturday: 9:00 AM – 5:00 PM</p>
+            
+            <p>Sunday: Closed</p>
+            
+        </div>
+    </div>
+</section>
+
+
+<section id="contact" class="section section-cta">
+    <div class="container contact-inner">
+        <h2 class="section-title light">Kontakt aufnehmen</h2>
+        <div class="contact-info">
+            
+            <a href="tel:030 6182786" class="contact-item">
+                <span class="contact-icon">📞</span>
+                <span>030 6182786</span>
+            </a>
+            
+            
+            <div class="contact-item">
+                <span class="contact-icon">📍</span>
+                <span>Skalitzer Str. 101, 10997 Berlin, Germany</span>
+            </div>
+            
+            
+        </div>
+        <a href="tel:030 6182786" class="btn btn-light">Jetzt Termin vereinbaren</a>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <p>Barbershop Tümer, Berlin - Ihrem Wohlgefühl näher</p>
+    </div>
+</footer>
+
+</body>
+</html>

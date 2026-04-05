@@ -82,8 +82,6 @@ def validate_phone_de(phone: str) -> bool:
     if not phone:
         return False
     cleaned = re.sub(r"[^0-9+]", "", phone)
-    if cleaned.startswith("+49") and len(cleaned) >= 12:
-        return True
-    if cleaned.startswith("0") and len(cleaned) >= 10:
+    if len(cleaned) >= 6:
         return True
     return False

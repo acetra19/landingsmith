@@ -64,12 +64,17 @@ Generate a complete single-page website copy in JSON format:
     "footer_text": "Brief footer text with location mention",
     "meta_description": "SEO meta description (max 155 chars)",
     "color_scheme": {{
-        "primary": "#hex color fitting the business type",
-        "secondary": "#hex accent color",
-        "bg": "#hex background (light)",
-        "text": "#hex text color (dark)"
+        "primary": "#hex - a bold, modern, saturated color. Use deep blues, teals, emerald greens, rich purples, or vibrant indigos. NEVER use brown, beige, tan, or muted earth tones.",
+        "secondary": "#hex - a complementary accent, brighter/warmer than primary",
+        "bg": "#hex background - use #ffffff or a very subtle cool-tinted off-white like #f8fafc",
+        "text": "#hex text - dark gray like #1e293b"
     }}
 }}
+
+IMPORTANT color rules:
+- Primary color must be modern and vibrant: blues (#2563eb, #0ea5e9), teals (#0d9488), greens (#059669), purples (#7c3aed), slate (#475569)
+- NEVER use brown (#663300, #8B4513, etc), beige, tan, olive, or muddy colors
+- The website should look sleek, modern, and premium — like a top Squarespace template
 
 Make it sound professional, trustworthy, and local. 
 The tone should be warm but business-appropriate for a German audience."""
@@ -133,6 +138,9 @@ class ContentGenerator:
             raw = response.choices[0].message.content
             data = self._extract_json(raw)
 
+            colors = data.get("color_scheme", {})
+            colors = self._sanitize_colors(colors)
+
             return WebsiteCopy(
                 headline=data.get("headline", business_name),
                 subheadline=data.get("subheadline", ""),
@@ -142,17 +150,45 @@ class ContentGenerator:
                 testimonial_placeholder=data.get("testimonial_placeholder", ""),
                 footer_text=data.get("footer_text", ""),
                 meta_description=data.get("meta_description", ""),
-                color_scheme=data.get("color_scheme", {
-                    "primary": "#2563eb",
-                    "secondary": "#f59e0b",
-                    "bg": "#ffffff",
-                    "text": "#1f2937",
-                }),
+                color_scheme=colors,
                 raw_json=data,
             )
         except Exception as e:
             logger.error(f"Content generation failed: {e}")
             return self._fallback_copy(business_name, business_type, city)
+
+    @staticmethod
+    def _sanitize_colors(colors: dict) -> dict:
+        """Reject muddy/brown colors and enforce a modern palette."""
+        defaults = {
+            "primary": "#2563eb",
+            "secondary": "#f59e0b",
+            "bg": "#ffffff",
+            "text": "#1e293b",
+        }
+        if not colors or not isinstance(colors, dict):
+            return defaults
+
+        result = {**defaults, **colors}
+
+        primary = result.get("primary", "").lower()
+        try:
+            if primary.startswith("#") and len(primary) == 7:
+                r = int(primary[1:3], 16)
+                g = int(primary[3:5], 16)
+                b = int(primary[5:7], 16)
+                is_brown = (r > 80 and g < r * 0.75 and b < r * 0.5)
+                is_muddy = (max(r, g, b) - min(r, g, b) < 60 and max(r, g, b) < 160)
+                is_too_dark = max(r, g, b) < 50
+                if is_brown or is_muddy or is_too_dark:
+                    result["primary"] = "#2563eb"
+        except (ValueError, IndexError):
+            result["primary"] = "#2563eb"
+
+        if result.get("bg", "").lower() not in ("#ffffff", "#f8fafc", "#f9fafb", "#fafafa", "#f8f9fa"):
+            result["bg"] = "#ffffff"
+
+        return result
 
     def _extract_json(self, text: str) -> dict:
         """Extract JSON from LLM response, handling markdown code fences."""

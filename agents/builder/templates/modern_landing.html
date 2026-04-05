@@ -25,9 +25,11 @@
         <h2 class="section-title">Über uns</h2>
         <p class="about-text">{{ about_text }}</p>
         {% if rating %}
-        <div class="rating-badge">
-            <span class="stars">{{ '★' * (rating | int) }}{{ '☆' * (5 - rating | int) }}</span>
-            <span class="rating-text">{{ rating }}/5 ({{ review_count }} Bewertungen)</span>
+        <div style="text-align:center">
+            <div class="rating-badge">
+                <span class="stars">{{ '★' * (rating | int) }}{{ '☆' * (5 - rating | int) }}</span>
+                <span class="rating-text">{{ rating }}/5 · {{ review_count }} Bewertungen</span>
+            </div>
         </div>
         {% endif %}
     </div>
@@ -36,6 +38,7 @@
 <section id="services" class="section section-alt">
     <div class="container">
         <h2 class="section-title">Unsere Leistungen</h2>
+        <p class="section-subtitle">Was wir für Sie tun können</p>
         <div class="services-grid">
             {% for service in services %}
             <div class="service-card">
@@ -51,9 +54,12 @@
 <section class="section">
     <div class="container">
         <h2 class="section-title">Kundenstimmen</h2>
-        <blockquote class="testimonial">
-            <p>"{{ testimonial }}"</p>
-        </blockquote>
+        <p class="section-subtitle">Was unsere Kunden sagen</p>
+        <div class="testimonial-wrapper">
+            <blockquote class="testimonial">
+                <p>{{ testimonial }}</p>
+            </blockquote>
+        </div>
     </div>
 </section>
 {% endif %}
@@ -62,7 +68,7 @@
 <section class="section section-alt">
     <div class="container">
         <h2 class="section-title">Öffnungszeiten</h2>
-        <div class="hours-list">
+        <div class="hours-card">
             {% for line in hours %}
             <p>{{ line }}</p>
             {% endfor %}
@@ -94,7 +100,11 @@
             </a>
             {% endif %}
         </div>
+        {% if phone %}
         <a href="tel:{{ phone }}" class="btn btn-light">{{ cta_text }}</a>
+        {% else %}
+        <a href="#" class="btn btn-light">{{ cta_text }}</a>
+        {% endif %}
     </div>
 </section>
 

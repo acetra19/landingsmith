@@ -1,17 +1,27 @@
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Friseur Shibaar in Berlin - Haarstyling, Haarschnitte, Haarfärbung und mehr">
+    <title>Friseur shibaar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-    --primary: {{ colors.primary }};
-    --secondary: {{ colors.secondary }};
-    --bg: {{ colors.bg }};
-    --text: {{ colors.text }};
+    --primary: #0ea5e9;
+    --secondary: #ffc107;
+    --bg: #f8fafc;
+    --text: #1e293b;
     --radius: 16px;
     --shadow: 0 4px 32px rgba(0,0,0,0.06);
     --shadow-lg: 0 12px 48px rgba(0,0,0,0.1);
 }
 
 body {
-    font-family: 'Inter', -apple-system, sans-serif;
+    font-family: &#39;Inter&#39;, -apple-system, sans-serif;
     color: var(--text);
     background: var(--bg);
     line-height: 1.7;
@@ -68,7 +78,7 @@ body {
     overflow: hidden;
 }
 .hero::before {
-    content: '';
+    content: &#39;&#39;;
     position: absolute;
     top: -50%; right: -20%;
     width: 600px; height: 600px;
@@ -76,7 +86,7 @@ body {
     border-radius: 50%;
 }
 .hero::after {
-    content: '';
+    content: &#39;&#39;;
     position: absolute;
     bottom: -30%; left: -10%;
     width: 500px; height: 500px;
@@ -228,7 +238,7 @@ body {
     box-shadow: var(--shadow);
 }
 .testimonial::before {
-    content: '\201C';
+    content: &#39;\201C&#39;;
     position: absolute;
     top: 12px; left: 20px;
     font-size: 4rem;
@@ -266,7 +276,7 @@ body {
     overflow: hidden;
 }
 .section-cta::before {
-    content: '';
+    content: &#39;&#39;;
     position: absolute;
     top: -40%; right: -15%;
     width: 500px; height: 500px;
@@ -329,3 +339,142 @@ body {
     .services-grid { grid-template-columns: 1fr; }
     .hero-title { font-size: 2rem; }
 }
+    </style>
+</head>
+<body>
+    
+<nav class="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">Friseur shibaar</a>
+        <div class="nav-links">
+            <a href="#about">Über uns</a>
+            <a href="#services">Leistungen</a>
+            <a href="#contact">Kontakt</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container hero-inner">
+        <h1 class="hero-title">Ihr Friseur in Berlin</h1>
+        <p class="hero-sub">Erleben Sie exzellente Haarstyling-Dienstleistungen</p>
+        <a href="#contact" class="btn btn-primary">Jetzt Termin vereinbaren</a>
+    </div>
+</header>
+
+<section id="about" class="section">
+    <div class="container">
+        <h2 class="section-title">Über uns</h2>
+        <p class="about-text">Willkommen im Friseur Shibaar, Ihrem zuverlässigen Partner für alle Haarstyling-Bedürfnisse in Berlin. Unser erfahrenes Team bietet Ihnen eine breite Palette an Dienstleistungen, von klassischen Haarschnitten bis hin zu modernen Styling-Trends. Wir verwenden nur hochwertige Produkte, um Ihre Haare zu pflegen und zu schützen.</p>
+        
+        <div style="text-align:center">
+            <div class="rating-badge">
+                <span class="stars">★★★★☆</span>
+                <span class="rating-text">4.9/5 · 449 Bewertungen</span>
+            </div>
+        </div>
+        
+    </div>
+</section>
+
+<section id="services" class="section section-alt">
+    <div class="container">
+        <h2 class="section-title">Unsere Leistungen</h2>
+        <p class="section-subtitle">Was wir für Sie tun können</p>
+        <div class="services-grid">
+            
+            <div class="service-card">
+                <div class="service-icon">1</div>
+                <h3>Haarschnitte</h3>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">2</div>
+                <h3>Haarfärbung</h3>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">3</div>
+                <h3>Haarstyling</h3>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">4</div>
+                <h3>Damen- und Herrenfrisuren</h3>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">Kundenstimmen</h2>
+        <p class="section-subtitle">Was unsere Kunden sagen</p>
+        <div class="testimonial-wrapper">
+            <blockquote class="testimonial">
+                <p>Ich bin seit Jahren Kunde beim Friseur Shibaar und bin immer wieder begeistert von der hervorragenden Arbeit und dem freundlichen Service.</p>
+            </blockquote>
+        </div>
+    </div>
+</section>
+
+
+
+<section class="section section-alt">
+    <div class="container">
+        <h2 class="section-title">Öffnungszeiten</h2>
+        <div class="hours-card">
+            
+            <p>Monday: 10:00 AM – 8:00 PM</p>
+            
+            <p>Tuesday: 10:00 AM – 8:00 PM</p>
+            
+            <p>Wednesday: 10:00 AM – 8:00 PM</p>
+            
+            <p>Thursday: 10:00 AM – 8:00 PM</p>
+            
+            <p>Friday: 10:00 AM – 8:00 PM</p>
+            
+            <p>Saturday: 10:00 AM – 8:00 PM</p>
+            
+            <p>Sunday: Closed</p>
+            
+        </div>
+    </div>
+</section>
+
+
+<section id="contact" class="section section-cta">
+    <div class="container contact-inner">
+        <h2 class="section-title light">Kontakt aufnehmen</h2>
+        <div class="contact-info">
+            
+            <a href="tel:0176 15747205" class="contact-item">
+                <span class="contact-icon">📞</span>
+                <span>0176 15747205</span>
+            </a>
+            
+            
+            <div class="contact-item">
+                <span class="contact-icon">📍</span>
+                <span>Grünberger Str. 28, 10243 Berlin, Germany</span>
+            </div>
+            
+            
+        </div>
+        
+        <a href="tel:0176 15747205" class="btn btn-light">Jetzt Termin vereinbaren</a>
+        
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <p>Friseur Shibaar, Berlin - Ihr Partner für perfektes Haarstyling</p>
+    </div>
+</footer>
+
+</body>
+</html>
