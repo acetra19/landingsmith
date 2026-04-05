@@ -5,7 +5,8 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(ENV_FILE, override=True)
+if ENV_FILE.exists():
+    load_dotenv(ENV_FILE, override=True)
 
 
 class GoogleSettings(BaseSettings):

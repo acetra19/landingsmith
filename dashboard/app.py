@@ -17,7 +17,14 @@ app.include_router(preview_router)
 
 @app.on_event("startup")
 def startup():
-    init_db()
+    import logging
+    logger = logging.getLogger(__name__)
+    try:
+        init_db()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Database init failed: {e}")
+        raise
 
 
 @app.get("/", response_class=HTMLResponse)
