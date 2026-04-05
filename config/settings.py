@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -9,6 +10,13 @@ if ENV_FILE.exists():
     load_dotenv(ENV_FILE, override=True)
 
 SHARED_CONFIG = {"extra": "ignore"}
+
+
+def _get_db_url() -> str:
+    """Resolve database URL, ignoring Railway's auto-injected DATABASE_URL."""
+    return os.environ.get(
+        "WEBREACH_DATABASE_URL", "sqlite:///data/outreach.db"
+    )
 
 
 class GoogleSettings(BaseSettings):
@@ -64,10 +72,7 @@ class PipelineSettings(BaseSettings):
 
 
 class Settings(BaseSettings):
-    database_url: str = Field(
-        default="sqlite:///data/outreach.db",
-        alias="WEBREACH_DATABASE_URL",
-    )
+    db_url: str = Field(default_factory=_get_db_url)
     log_level: str = "INFO"
     base_dir: Path = Path(__file__).resolve().parent.parent
 
@@ -78,10 +83,7 @@ class Settings(BaseSettings):
     email: EmailSettings = Field(default_factory=EmailSettings)
     pipeline: PipelineSettings = Field(default_factory=PipelineSettings)
 
-    model_config = {
-        "extra": "ignore",
-        "populate_by_name": True,
-    }
+    model_config = {"extra": "ignore"}
 
 
 settings = Settings()

@@ -12,7 +12,7 @@ _SessionLocal = None
 def get_engine():
     global _engine
     if _engine is None:
-        db_url = settings.database_url
+        db_url = settings.db_url
         if db_url.startswith("sqlite"):
             db_path = db_url.replace("sqlite:///", "")
             Path(db_path).parent.mkdir(parents=True, exist_ok=True)

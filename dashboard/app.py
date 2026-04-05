@@ -3,30 +3,40 @@ FastAPI application serving the dashboard UI, API, and website previews.
 This single app runs on Railway and handles everything.
 """
 
+import logging
+import os
+
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
-from dashboard.api import router as api_router
-from dashboard.preview import router as preview_router
-from database.connection import init_db
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("landingsmith")
 
-app = FastAPI(title="WebReach Pipeline Dashboard", version="1.0.0")
-app.include_router(api_router)
-app.include_router(preview_router)
+app = FastAPI(title="LandingSmith Dashboard", version="1.0.0")
+
+
+@app.get("/health")
+def health():
+    """Lightweight health endpoint for Railway — no DB dependency."""
+    return JSONResponse({"status": "ok"})
 
 
 @app.on_event("startup")
 def startup():
-    import os
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
     logger.info(f"Starting LandingSmith on PORT={os.environ.get('PORT', 'not set')}")
     try:
         from config.settings import settings
-        logger.info(f"DB URL: {settings.database_url[:30]}...")
+        logger.info(f"DB URL: {settings.db_url[:40]}...")
+
+        from database.connection import init_db
         init_db()
-        logger.info("Database initialized successfully")
+        logger.info("Database initialized")
+
+        from dashboard.api import router as api_router
+        from dashboard.preview import router as preview_router
+        app.include_router(api_router)
+        app.include_router(preview_router)
+        logger.info("Routes registered")
     except Exception as e:
         logger.error(f"Startup failed: {e}", exc_info=True)
         raise
