@@ -18,8 +18,9 @@ python-whois==0.9.4
 dnspython==2.7.0
 beautifulsoup4==4.12.3
 
-# LLM for content generation
+# LLM for content generation (openai SDK works for both OpenAI and Groq)
 openai==1.58.1
+groq==0.15.0
 jinja2==3.1.5
 
 # Email / Outreach

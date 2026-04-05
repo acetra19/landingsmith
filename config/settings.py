@@ -17,12 +17,14 @@ class SerpApiSettings(BaseSettings):
     model_config = {"env_prefix": "SERPAPI_"}
 
 
-class OpenAISettings(BaseSettings):
+class LLMSettings(BaseSettings):
+    provider: str = "groq"  # "groq" or "openai"
     api_key: str = ""
-    model: str = "gpt-4o"
+    model: str = "llama-3.3-70b-versatile"
+    base_url: str = "https://api.groq.com/openai/v1"
     max_tokens: int = 4096
 
-    model_config = {"env_prefix": "OPENAI_"}
+    model_config = {"env_prefix": "LLM_"}
 
 
 class RailwaySettings(BaseSettings):
@@ -63,7 +65,7 @@ class Settings(BaseSettings):
 
     google: GoogleSettings = Field(default_factory=GoogleSettings)
     serpapi: SerpApiSettings = Field(default_factory=SerpApiSettings)
-    openai: OpenAISettings = Field(default_factory=OpenAISettings)
+    llm: LLMSettings = Field(default_factory=LLMSettings)
     railway: RailwaySettings = Field(default_factory=RailwaySettings)
     email: EmailSettings = Field(default_factory=EmailSettings)
     pipeline: PipelineSettings = Field(default_factory=PipelineSettings)

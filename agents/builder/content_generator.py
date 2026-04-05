@@ -1,6 +1,7 @@
 """
-Uses OpenAI to generate professional website copy
-tailored to the business type and details.
+Uses an LLM (Groq by default, OpenAI as fallback) to generate
+professional website copy tailored to the business type and details.
+Groq is preferred for speed and cost — its API is OpenAI-compatible.
 """
 
 import json
@@ -12,6 +13,17 @@ from openai import AsyncOpenAI
 from config.settings import settings
 
 logger = logging.getLogger(__name__)
+
+PROVIDER_DEFAULTS = {
+    "groq": {
+        "base_url": "https://api.groq.com/openai/v1",
+        "model": "llama-3.3-70b-versatile",
+    },
+    "openai": {
+        "base_url": "https://api.openai.com/v1",
+        "model": "gpt-4o",
+    },
+}
 
 
 @dataclass
@@ -65,7 +77,20 @@ The tone should be warm but business-appropriate for a German audience."""
 
 class ContentGenerator:
     def __init__(self):
-        self.client = AsyncOpenAI(api_key=settings.openai.api_key)
+        llm = settings.llm
+        base_url = llm.base_url or PROVIDER_DEFAULTS.get(
+            llm.provider, PROVIDER_DEFAULTS["groq"]
+        )["base_url"]
+        self.model = llm.model or PROVIDER_DEFAULTS.get(
+            llm.provider, PROVIDER_DEFAULTS["groq"]
+        )["model"]
+
+        self.client = AsyncOpenAI(
+            api_key=llm.api_key,
+            base_url=base_url,
+        )
+        self.supports_json_mode = llm.provider == "openai"
+        logger.info(f"LLM provider: {llm.provider} | model: {self.model}")
 
     async def generate(
         self,
@@ -92,19 +117,21 @@ class ContentGenerator:
         )
 
         try:
-            response = await self.client.chat.completions.create(
-                model=settings.openai.model,
-                messages=[
+            kwargs = {
+                "model": self.model,
+                "messages": [
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt},
                 ],
-                max_tokens=settings.openai.max_tokens,
-                temperature=0.7,
-                response_format={"type": "json_object"},
-            )
+                "max_tokens": settings.llm.max_tokens,
+                "temperature": 0.7,
+            }
+            if self.supports_json_mode:
+                kwargs["response_format"] = {"type": "json_object"}
 
+            response = await self.client.chat.completions.create(**kwargs)
             raw = response.choices[0].message.content
-            data = json.loads(raw)
+            data = self._extract_json(raw)
 
             return WebsiteCopy(
                 headline=data.get("headline", business_name),
@@ -127,6 +154,15 @@ class ContentGenerator:
             logger.error(f"Content generation failed: {e}")
             return self._fallback_copy(business_name, business_type, city)
 
+    def _extract_json(self, text: str) -> dict:
+        """Extract JSON from LLM response, handling markdown code fences."""
+        text = text.strip()
+        if text.startswith("```"):
+            lines = text.split("\n")
+            lines = [l for l in lines if not l.strip().startswith("```")]
+            text = "\n".join(lines)
+        return json.loads(text)
+
     def _fallback_copy(
         self, name: str, btype: str, city: str
     ) -> WebsiteCopy:
@@ -134,13 +170,13 @@ class ContentGenerator:
             headline=name,
             subheadline=f"Ihr {btype} in {city}" if btype and city else "Willkommen",
             about_text=(
-                f"{name} ist Ihr verlässlicher Partner"
+                f"{name} ist Ihr verlaesslicher Partner"
                 f"{' in ' + city if city else ''}. "
-                "Kontaktieren Sie uns für eine persönliche Beratung."
+                "Kontaktieren Sie uns fuer eine persoenliche Beratung."
             ),
-            services=["Beratung", "Service", "Qualität", "Erfahrung"],
+            services=["Beratung", "Service", "Qualitaet", "Erfahrung"],
             cta_text="Jetzt kontaktieren",
-            footer_text=f"© {name}" + (f" · {city}" if city else ""),
+            footer_text=f"(c) {name}" + (f" - {city}" if city else ""),
             meta_description=f"{name} - {btype} in {city}",
             color_scheme={
                 "primary": "#2563eb",
