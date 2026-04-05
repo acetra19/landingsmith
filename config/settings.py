@@ -8,19 +8,21 @@ ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 if ENV_FILE.exists():
     load_dotenv(ENV_FILE, override=True)
 
+SHARED_CONFIG = {"extra": "ignore"}
+
 
 class GoogleSettings(BaseSettings):
     places_api_key: str = ""
     search_radius_meters: int = 5000
     max_results_per_query: int = 60
 
-    model_config = {"env_prefix": "GOOGLE_"}
+    model_config = {**SHARED_CONFIG, "env_prefix": "GOOGLE_"}
 
 
 class SerpApiSettings(BaseSettings):
     key: str = ""
 
-    model_config = {"env_prefix": "SERPAPI_"}
+    model_config = {**SHARED_CONFIG, "env_prefix": "SERPAPI_"}
 
 
 class LLMSettings(BaseSettings):
@@ -30,7 +32,7 @@ class LLMSettings(BaseSettings):
     base_url: str = "https://api.groq.com/openai/v1"
     max_tokens: int = 4096
 
-    model_config = {"env_prefix": "LLM_"}
+    model_config = {**SHARED_CONFIG, "env_prefix": "LLM_"}
 
 
 class RailwaySettings(BaseSettings):
@@ -39,7 +41,7 @@ class RailwaySettings(BaseSettings):
     project_id: str = ""
     default_region: str = "europe-west"
 
-    model_config = {"env_prefix": "RAILWAY_"}
+    model_config = {**SHARED_CONFIG, "env_prefix": "RAILWAY_"}
 
 
 class EmailSettings(BaseSettings):
@@ -47,7 +49,7 @@ class EmailSettings(BaseSettings):
     from_email: str = "outreach@example.com"
     from_name: str = "LandingSmith"
 
-    model_config = {"env_prefix": "OUTREACH_"}
+    model_config = {**SHARED_CONFIG, "env_prefix": "OUTREACH_"}
 
 
 class PipelineSettings(BaseSettings):
@@ -58,7 +60,7 @@ class PipelineSettings(BaseSettings):
     scan_cooldown_hours: int = 24
     verification_timeout_seconds: int = 10
 
-    model_config = {"env_prefix": "PIPELINE_"}
+    model_config = {**SHARED_CONFIG, "env_prefix": "PIPELINE_"}
 
 
 class Settings(BaseSettings):

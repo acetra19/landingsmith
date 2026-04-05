@@ -17,13 +17,18 @@ app.include_router(preview_router)
 
 @app.on_event("startup")
 def startup():
+    import os
     import logging
+    logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
+    logger.info(f"Starting LandingSmith on PORT={os.environ.get('PORT', 'not set')}")
     try:
+        from config.settings import settings
+        logger.info(f"DB URL: {settings.database_url[:30]}...")
         init_db()
         logger.info("Database initialized successfully")
     except Exception as e:
-        logger.error(f"Database init failed: {e}")
+        logger.error(f"Startup failed: {e}", exc_info=True)
         raise
 
 
