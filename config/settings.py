@@ -54,7 +54,10 @@ class PipelineSettings(BaseSettings):
 
 
 class Settings(BaseSettings):
-    database_url: str = "sqlite:///data/outreach.db"
+    database_url: str = Field(
+        default="sqlite:///data/outreach.db",
+        alias="WEBREACH_DATABASE_URL",
+    )
     log_level: str = "INFO"
     base_dir: Path = Path(__file__).resolve().parent.parent
 
@@ -65,7 +68,12 @@ class Settings(BaseSettings):
     email: EmailSettings = Field(default_factory=EmailSettings)
     pipeline: PipelineSettings = Field(default_factory=PipelineSettings)
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    model_config = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "extra": "ignore",
+        "populate_by_name": True,
+    }
 
 
 settings = Settings()

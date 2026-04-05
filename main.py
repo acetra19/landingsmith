@@ -5,6 +5,12 @@ Orchestrates all agents for automated website outreach.
 
 import asyncio
 import logging
+import os
+import sys
+
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+if sys.platform == "win32":
+    os.system("")  # enable ANSI escape codes on Windows
 
 import click
 from rich.console import Console
@@ -153,7 +159,7 @@ def followup():
 @click.option("--query", "-q", default="", help="Additional search keyword")
 @click.option("--radius", "-r", default=5000, help="Search radius in meters")
 def run_all(location: str, query: str, radius: int):
-    """Run the full pipeline: scan → verify → build → deploy → outreach."""
+    """Run the full pipeline: scan > verify > build > deploy > outreach."""
     pipeline = create_pipeline()
 
     async def _run():
