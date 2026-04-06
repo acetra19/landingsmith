@@ -50,6 +50,10 @@ class EmailSender:
             "to": [to_email],
             "subject": subject,
             "html": html_body,
+            "headers": {
+                "List-Unsubscribe": f"<mailto:{self.from_email}?subject=Abbestellen>",
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+            },
         }
         if reply_to:
             payload["reply_to"] = reply_to

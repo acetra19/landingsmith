@@ -49,11 +49,18 @@ class OutreachAgent(BaseAgent):
 
         if lead.email:
             return await self._send_email(lead, deployment, session)
-        elif lead.phone and settings.twilio.account_sid:
-            return await self._send_sms(lead, deployment, session)
         else:
-            raise ValueError(
-                f"Lead {lead.id} has no email or phone for outreach"
+            self.logger.info(
+                f"Lead {lead.id} ({lead.business_name}): no email, "
+                f"skipping cold outreach (cold SMS disabled for compliance)"
+            )
+            return OutreachMessage(
+                lead_id=lead.id,
+                channel="sms",
+                subject=f"Kalt-SMS deaktiviert fuer {lead.phone or 'N/A'}",
+                body="Cold SMS disabled – only voice-followup SMS allowed",
+                recipient_email=lead.phone or "",
+                status="skipped",
             )
 
     async def _send_email(
