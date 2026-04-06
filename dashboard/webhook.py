@@ -12,6 +12,9 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from agents.outreach.agent import OutreachAgent
+from agents.outreach.email_sender import EmailSender
+from agents.outreach.email_templates import voice_fallback
+from config.settings import settings
 from database.connection import get_session
 from database.models import Lead, LeadStatus, OutreachMessage, RejectionReason
 from orchestrator.state_machine import LeadStateMachine
@@ -116,8 +119,13 @@ async def retell_webhook(request: Request):
     session = get_session()
     try:
         lead = _find_lead_by_phone(session, data["to_number"])
+
         if not lead:
             logger.warning(f"No lead found for phone {data['to_number']}")
+            interest = data["interest_level"].lower().strip()
+            if interest == "interested" and data["contact_email"]:
+                result = await _send_fallback_email(session, data)
+                return JSONResponse({"status": "fallback_sent", "action": result})
             return JSONResponse({"status": "lead_not_found"})
 
         _record_voice_message(session, lead, data)
@@ -178,7 +186,8 @@ async def _handle_interest(
 async def _handle_interested(
     session: Session, lead: Lead, data: dict,
 ) -> str:
-    """Send preview email/SMS and transition lead to OUTREACH_SENT."""
+    """Send preview email/SMS and transition lead to OUTREACH_SENT.
+    Falls back to a generic email if no deployment/preview exists."""
     agent = _get_outreach_agent()
 
     send_via = data["send_preview_via"].lower().strip() or "email"
@@ -191,6 +200,11 @@ async def _handle_interested(
         contact_name=data["contact_name"],
         send_via=send_via,
     )
+
+    if message is None and contact_email:
+        logger.info(f"No deployment for lead {lead.id}, sending fallback email")
+        result = await _send_fallback_email(session, data, lead=lead)
+        return f"interested → fallback_email ({result})"
 
     if lead.status == LeadStatus.DEPLOYED:
         if LeadStateMachine.can_transition(lead.status, LeadStatus.OUTREACH_SENT):
@@ -221,3 +235,81 @@ def _handle_not_interested(session: Session, lead: Lead) -> str:
         lead.rejection_reason = RejectionReason.MANUAL
         lead.rejection_details = "Not interested (voice call)"
     return "not_interested → rejected"
+
+
+async def _send_fallback_email(
+    session: Session,
+    data: dict,
+    lead: Lead | None = None,
+) -> str:
+    """Send a generic follow-up email when no preview website exists.
+    Works both with and without a lead in the database."""
+    contact_email = data.get("contact_email", "")
+    if not contact_email:
+        return "no_email"
+
+    business_name = ""
+    if lead:
+        business_name = lead.business_name
+    if not business_name:
+        business_name = data.get("notes", "") or data.get("to_number", "Ihr Unternehmen")
+
+    subject, body = voice_fallback(
+        business_name=business_name,
+        contact_name=data.get("contact_name", ""),
+        sender_name=settings.email.from_name,
+    )
+
+    sender = EmailSender()
+    try:
+        result = await sender.send(
+            to_email=contact_email,
+            subject=subject,
+            html_body=body,
+        )
+
+        if lead and session:
+            session.add(OutreachMessage(
+                lead_id=lead.id,
+                channel="email",
+                subject=subject,
+                body=body,
+                recipient_email=contact_email,
+                message_id=result.message_id,
+                status="sent" if result.success else "failed",
+                sent_at=datetime.now(timezone.utc) if result.success else None,
+            ))
+            session.commit()
+
+        status = "sent" if result.success else f"failed: {result.error}"
+        logger.info(f"Fallback email to {contact_email}: {status}")
+
+        if result.success:
+            _send_fallback_notification(sender, contact_email, business_name)
+
+        return status
+    finally:
+        await sender.close()
+
+
+def _send_fallback_notification(
+    sender: EmailSender, contact_email: str, business_name: str
+) -> None:
+    """Fire-and-forget admin notification for fallback emails."""
+    import asyncio
+    try:
+        asyncio.ensure_future(sender.send(
+            to_email="james@amplivo.net",
+            subject=f"Fallback-Email gesendet: {business_name}",
+            html_body=f"""
+            <div style="font-family:sans-serif;max-width:600px;padding:20px">
+                <h2 style="color:#f59e0b">Fallback E-Mail (kein Preview vorhanden)</h2>
+                <p><strong>Unternehmen:</strong> {business_name}</p>
+                <p><strong>E-Mail:</strong> {contact_email}</p>
+                <p>Es existiert noch kein Website-Entwurf. Bitte manuell
+                nachverfolgen oder Pipeline fuer diesen Lead starten.</p>
+            </div>
+            """,
+        ))
+    except Exception:
+        pass

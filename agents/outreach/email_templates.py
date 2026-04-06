@@ -1,10 +1,22 @@
 """
 Email templates for outreach. All in German.
 Each template returns (subject, body_html) tuples.
-Includes cold outreach and warm voice-call follow-ups.
+Includes cold outreach, warm voice-call follow-ups, and fallbacks.
 """
 
+from typing import Optional
+
 from database.models import Lead, DomainSuggestion
+
+
+FOOTER_HTML = """
+        <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
+        <p style="font-size: 12px; color: #999;">
+            Amplivo | Florian Kuehnast | Katharinenstr. 19A, 10711 Berlin<br>
+            <a href="https://amplivo.net/impressum" style="color:#999">Impressum</a> |
+            <a href="https://amplivo.net/datenschutz" style="color:#999">Datenschutzerklaerung</a><br><br>
+            {opt_out}
+        </p>"""
 
 
 def initial_outreach(
@@ -240,6 +252,74 @@ def voice_followup(
         <p>Ich freue mich auf Ihre Rückmeldung!</p>
 
         <p>Beste Grüße<br>
+        <strong>{sender_name}</strong></p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
+        <p style="font-size: 12px; color: #999;">
+            Amplivo | Florian Kuehnast | Katharinenstr. 19A, 10711 Berlin<br>
+            <a href="https://amplivo.net/impressum" style="color:#999">Impressum</a> |
+            <a href="https://amplivo.net/datenschutz" style="color:#999">Datenschutzerklaerung</a><br><br>
+            Kein Interesse? Antworten Sie mit "Abbestellen".
+        </p>
+    </div>
+    """
+    return subject, body
+
+
+def voice_fallback(
+    business_name: str,
+    contact_name: str = "",
+    sender_name: str = "James von Amplivo.net",
+) -> tuple[str, str]:
+    """Fallback email after a voice call when no preview website exists yet.
+    Used for manual/test calls or leads not yet in the pipeline."""
+    greeting = f"{contact_name}" if contact_name else "Guten Tag"
+
+    subject = f"Wie besprochen: Website fuer {business_name}"
+
+    body = f"""
+    <div style="font-family: -apple-system, Arial, sans-serif; max-width: 600px; color: #333; line-height: 1.6;">
+        <p>Hallo {greeting},</p>
+
+        <p>vielen Dank fuer das nette Gespraech! Wie besprochen
+        erstellt unser Team in den naechsten Tagen einen
+        <strong>kostenlosen, massgeschneiderten Website-Entwurf</strong>
+        speziell fuer <strong>{business_name}</strong>.</p>
+
+        <p>Sobald der Entwurf fertig ist, erhalten Sie den Link
+        per E-Mail und koennen sich alles in Ruhe anschauen.</p>
+
+        <table style="width:100%;border-collapse:collapse;margin:20px 0;font-size:14px">
+            <tr style="background:#f8fafc">
+                <td style="padding:12px 16px;border:1px solid #e5e7eb"><strong>Website (einmalig)</strong><br>
+                    <span style="color:#64748b;font-size:13px">Design, Texte, Anpassungen nach Ihren Wuenschen</span></td>
+                <td style="padding:12px 16px;border:1px solid #e5e7eb;text-align:right;white-space:nowrap"><strong>99 &#8364;</strong></td>
+            </tr>
+            <tr>
+                <td style="padding:12px 16px;border:1px solid #e5e7eb"><strong>Eigene Domain</strong><br>
+                    <span style="color:#64748b;font-size:13px">z.B. www.ihr-firmenname.de</span></td>
+                <td style="padding:12px 16px;border:1px solid #e5e7eb;text-align:right;white-space:nowrap"><strong>ab 15 &#8364;/Jahr</strong></td>
+            </tr>
+            <tr style="background:#f8fafc">
+                <td style="padding:12px 16px;border:1px solid #e5e7eb"><strong>Wartung &amp; Updates</strong><br>
+                    <span style="color:#64748b;font-size:13px">Hosting, Pflege, massgeschneiderte Aenderungen</span></td>
+                <td style="padding:12px 16px;border:1px solid #e5e7eb;text-align:right;white-space:nowrap"><strong>10 &#8364;/Jahr</strong></td>
+            </tr>
+        </table>
+
+        <p>In der Zwischenzeit koennen Sie sich gerne auf unserer Website umsehen:</p>
+
+        <p style="text-align: center; margin: 24px 0;">
+            <a href="https://amplivo.net"
+               style="background: #2563eb; color: white; padding: 12px 28px;
+                      border-radius: 8px; text-decoration: none; font-weight: 600;">
+                amplivo.net besuchen
+            </a>
+        </p>
+
+        <p>Falls Sie Fragen haben, antworten Sie einfach auf diese E-Mail.</p>
+
+        <p>Beste Gruesse<br>
         <strong>{sender_name}</strong></p>
 
         <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
