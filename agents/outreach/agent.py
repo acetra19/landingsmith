@@ -451,13 +451,16 @@ class OutreachAgent(BaseAgent):
         return message
 
     def _already_contacted(self, session: Session, lead_id: int) -> bool:
-        """Check if this lead already has a successful outreach message
-        (email sent, voice call initiated, or voice followup sent)."""
+        """Check if this lead already received a delivered outreach
+        (email/SMS sent). Voice calls use the lead status transition
+        (DEPLOYED → OUTREACH_SENT) as the primary dedup guard instead,
+        because the call outcome arrives asynchronously via webhook."""
         existing = (
             session.query(OutreachMessage)
             .filter(
                 OutreachMessage.lead_id == lead_id,
-                OutreachMessage.status.in_(["sent", "voice_initiated"]),
+                OutreachMessage.status == "sent",
+                OutreachMessage.channel.in_(["email", "sms"]),
             )
             .first()
         )
