@@ -46,3 +46,17 @@ def voice_followup_sms(
         f"- Fragen? james@amplivo.net. "
         f"LG James, Amplivo.net"
     )
+
+
+def missed_call_sms(
+    lead: Lead,
+    preview_url: str,
+) -> str:
+    """SMS sent after a voice call that was not answered (no_answer/mailbox)."""
+    return (
+        f"Guten Tag, wir haben versucht Sie telefonisch zu erreichen. "
+        f"Wir haben einen kostenlosen Website-Entwurf fuer "
+        f"{lead.business_name} erstellt: {preview_url} "
+        f"- Bei Interesse: james@amplivo.net. "
+        f"LG James, Amplivo.net"
+    )

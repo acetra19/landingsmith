@@ -14,9 +14,11 @@ from sqlalchemy.orm import Session
 from agents.outreach.agent import OutreachAgent
 from agents.outreach.email_sender import EmailSender
 from agents.outreach.email_templates import voice_fallback
+from agents.outreach.sms_sender import SMSSender
+from agents.outreach.sms_templates import missed_call_sms
 from config.settings import settings
 from database.connection import get_session
-from database.models import Lead, LeadStatus, OutreachMessage, RejectionReason
+from database.models import Lead, Deployment, LeadStatus, OutreachMessage, RejectionReason
 from orchestrator.state_machine import LeadStateMachine
 
 logger = logging.getLogger(__name__)
@@ -178,6 +180,9 @@ async def _handle_interest(
     elif interest == "not_interested":
         return _handle_not_interested(session, lead)
 
+    elif interest in ("no_answer", "mailbox"):
+        return await _handle_missed_call(session, lead, data, interest)
+
     else:
         logger.info(f"Lead {lead.id}: no action for interest_level={interest}")
         return f"no_action ({interest})"
@@ -235,6 +240,55 @@ def _handle_not_interested(session: Session, lead: Lead) -> str:
         lead.rejection_reason = RejectionReason.MANUAL
         lead.rejection_details = "Not interested (voice call)"
     return "not_interested → rejected"
+
+
+async def _handle_missed_call(
+    session: Session, lead: Lead, data: dict, interest: str,
+) -> str:
+    """Send a 'we tried to reach you' SMS when the call was not answered."""
+    if not lead.phone or not settings.twilio.account_sid:
+        logger.info(f"Lead {lead.id}: {interest}, no phone/Twilio for SMS")
+        return f"{interest} → no_sms (missing phone or Twilio)"
+
+    deployment = (
+        session.query(Deployment)
+        .filter(Deployment.lead_id == lead.id)
+        .order_by(Deployment.created_at.desc())
+        .first()
+    )
+    if not deployment or not deployment.live_url:
+        logger.info(f"Lead {lead.id}: {interest}, no deployment for SMS")
+        return f"{interest} → no_sms (no deployment)"
+
+    body = missed_call_sms(lead=lead, preview_url=deployment.live_url)
+
+    sms_sender = SMSSender()
+    result = await sms_sender.send(to_number=lead.phone, body=body)
+
+    status = "sent" if result.success else "failed"
+    if not result.success and "Landline" in (result.error or ""):
+        status = "skipped_landline"
+
+    session.add(OutreachMessage(
+        lead_id=lead.id,
+        channel="sms",
+        subject=f"Missed call SMS ({interest})",
+        body=body,
+        recipient_email=lead.phone,
+        message_id=result.message_sid,
+        status=status,
+        sent_at=datetime.now(timezone.utc) if result.success else None,
+    ))
+
+    if result.success:
+        logger.info(f"Missed-call SMS sent to {lead.phone} for {lead.business_name}")
+        if LeadStateMachine.can_transition(lead.status, LeadStatus.OUTREACH_SENT):
+            lead.status = LeadStatus.OUTREACH_SENT
+            lead.outreach_at = datetime.now(timezone.utc)
+    else:
+        logger.info(f"Missed-call SMS to {lead.phone}: {result.error}")
+
+    return f"{interest} → sms_{status}"
 
 
 async def _send_fallback_email(
