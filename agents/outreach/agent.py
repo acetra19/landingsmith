@@ -11,9 +11,11 @@ from sqlalchemy.orm import Session
 
 from agents.base_agent import BaseAgent
 from agents.outreach.email_sender import EmailSender
-from agents.outreach.email_templates import initial_outreach, follow_up_1, follow_up_2
+from agents.outreach.email_templates import (
+    initial_outreach, follow_up_1, follow_up_2, voice_followup,
+)
 from agents.outreach.sms_sender import SMSSender
-from agents.outreach.sms_templates import initial_sms, follow_up_sms
+from agents.outreach.sms_templates import initial_sms, follow_up_sms, voice_followup_sms
 from config.settings import settings
 from database.models import Lead, Deployment, DomainSuggestion, OutreachMessage
 
@@ -245,6 +247,127 @@ class OutreachAgent(BaseAgent):
             session.commit()
         return message
 
+    async def send_voice_followup(
+        self,
+        lead: Lead,
+        session: Session,
+        contact_email: str = "",
+        contact_name: str = "",
+        send_via: str = "email",
+    ) -> OutreachMessage | None:
+        """Send preview link after a voice call where the lead was interested."""
+        deployment = self._get_deployment(session, lead.id)
+        if not deployment or not deployment.live_url:
+            self.logger.error(f"No deployment for lead {lead.id}, can't send followup")
+            return None
+
+        if send_via == "email" and contact_email:
+            return await self._send_voice_email(
+                lead, deployment, session, contact_email, contact_name,
+            )
+        elif send_via == "sms" and lead.phone:
+            return await self._send_voice_sms(lead, deployment, session)
+        elif contact_email:
+            return await self._send_voice_email(
+                lead, deployment, session, contact_email, contact_name,
+            )
+        else:
+            self.logger.warning(
+                f"Voice followup for lead {lead.id}: no email or phone available"
+            )
+            return None
+
+    async def _send_voice_email(
+        self,
+        lead: Lead,
+        deployment: Deployment,
+        session: Session,
+        contact_email: str,
+        contact_name: str,
+    ) -> OutreachMessage:
+        domains = self._get_domains(session, lead.id)
+
+        subject, body = voice_followup(
+            lead=lead,
+            preview_url=deployment.live_url,
+            domain_suggestions=domains,
+            contact_name=contact_name,
+            sender_name=settings.email.from_name,
+        )
+
+        result = await self.email_sender.send(
+            to_email=contact_email,
+            subject=subject,
+            html_body=body,
+        )
+
+        message = OutreachMessage(
+            lead_id=lead.id,
+            channel="email",
+            subject=subject,
+            body=body,
+            recipient_email=contact_email,
+            message_id=result.message_id,
+            status="sent" if result.success else "failed",
+            sent_at=datetime.now(timezone.utc) if result.success else None,
+        )
+
+        if session:
+            session.add(message)
+            session.commit()
+
+        if result.success:
+            self.logger.info(
+                f"Voice followup email sent to {contact_email} for {lead.business_name}"
+            )
+            await self._send_notification(lead, "voice+email", deployment)
+        else:
+            self.logger.error(
+                f"Voice followup email failed for {lead.business_name}: {result.error}"
+            )
+
+        return message
+
+    async def _send_voice_sms(
+        self, lead: Lead, deployment: Deployment, session: Session,
+    ) -> OutreachMessage:
+        body = voice_followup_sms(
+            lead=lead,
+            preview_url=deployment.live_url,
+        )
+
+        result = await self.sms_sender.send(
+            to_number=lead.phone,
+            body=body,
+        )
+
+        message = OutreachMessage(
+            lead_id=lead.id,
+            channel="sms",
+            subject=f"Voice followup SMS an {lead.phone}",
+            body=body,
+            recipient_email=lead.phone,
+            message_id=result.message_sid,
+            status="sent" if result.success else "failed",
+            sent_at=datetime.now(timezone.utc) if result.success else None,
+        )
+
+        if session:
+            session.add(message)
+            session.commit()
+
+        if result.success:
+            self.logger.info(
+                f"Voice followup SMS sent to {lead.phone} for {lead.business_name}"
+            )
+            await self._send_notification(lead, "voice+sms", deployment)
+        else:
+            self.logger.error(
+                f"Voice followup SMS failed for {lead.business_name}: {result.error}"
+            )
+
+        return message
+
     def _get_deployment(self, session: Session, lead_id: int) -> Deployment:
         if not session:
             return None
@@ -262,7 +385,10 @@ class OutreachAgent(BaseAgent):
             return []
         return (
             session.query(DomainSuggestion)
-            .filter(DomainSuggestion.lead_id == lead_id)
+            .filter(
+                DomainSuggestion.lead_id == lead_id,
+                DomainSuggestion.is_available == True,
+            )
             .order_by(DomainSuggestion.is_recommended.desc())
             .all()
         )

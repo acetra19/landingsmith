@@ -5,11 +5,13 @@ stores the result, and generates domain suggestions.
 """
 
 import logging
+from datetime import datetime, timezone
 from pathlib import Path
 
 from sqlalchemy.orm import Session
 
 from agents.base_agent import BaseAgent
+from agents.builder.domain_checker import check_domains_batch
 from agents.builder.generator import WebsiteGenerator
 from config.settings import settings
 from database.models import Lead, Website, DomainSuggestion
@@ -49,7 +51,7 @@ class BuilderAgent(BaseAgent):
             session.flush()
 
         self._save_to_disk(lead, website)
-        self._generate_domains(lead, session)
+        await self._generate_domains(lead, session)
 
         if session:
             session.commit()
@@ -80,12 +82,21 @@ class BuilderAgent(BaseAgent):
         website.screenshot_path = str(site_dir / "index.html")
         self.logger.debug(f"Saved website to {site_dir}")
 
-    def _generate_domains(self, lead: Lead, session: Session) -> None:
+    async def _generate_domains(self, lead: Lead, session: Session) -> None:
         if not session:
             return
 
         suggestions = self.generator.generate_domain_suggestions(lead)
-        for domain_str in suggestions:
+
+        checked = await check_domains_batch(suggestions)
+        self.logger.info(
+            f"Domain check for {lead.business_name}: "
+            + ", ".join(f"{d}={'free' if ok else 'taken'}" for d, ok in checked)
+        )
+
+        now = datetime.now(timezone.utc)
+        first_available = True
+        for domain_str, is_available in checked:
             name, tld = domain_str.rsplit(".", 1)
             existing = (
                 session.query(DomainSuggestion)
@@ -95,10 +106,17 @@ class BuilderAgent(BaseAgent):
                 )
                 .first()
             )
-            if not existing:
+            if existing:
+                existing.is_available = is_available
+                existing.checked_at = now
+            else:
                 session.add(DomainSuggestion(
                     lead_id=lead.id,
                     domain_name=name,
                     tld=f".{tld}",
-                    is_recommended=(domain_str == suggestions[0]),
+                    is_available=is_available,
+                    checked_at=now,
+                    is_recommended=(is_available and first_available),
                 ))
+                if is_available and first_available:
+                    first_available = False

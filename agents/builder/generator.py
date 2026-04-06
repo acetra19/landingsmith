@@ -106,21 +106,24 @@ class WebsiteGenerator:
             city = re.sub(r"[ß]", "ss", city)
             city = re.sub(r"[^a-z0-9]+", "-", city).strip("-")
 
-        suggestions = [
-            f"{slug}.de",
-            f"{slug}.com",
-        ]
+        candidates: list[str] = []
+
+        candidates.append(f"{slug}.de")
         if city:
-            suggestions.extend([
-                f"{slug}-{city}.de",
-                f"{slug}-{city}.com",
-            ])
+            candidates.append(f"{slug}-{city}.de")
+            candidates.append(f"{slug}-{city}.com")
+        candidates.append(f"{slug}.com")
 
         parts = slug.split("-")
-        if len(parts) > 1:
-            short = parts[0]
-            suggestions.append(f"{short}.de")
+        if len(parts) > 1 and len(parts[0]) >= 4:
             if city:
-                suggestions.append(f"{short}-{city}.de")
+                candidates.append(f"{parts[0]}-{city}.de")
 
-        return suggestions[:6]
+        seen = set()
+        unique: list[str] = []
+        for d in candidates:
+            if d not in seen:
+                seen.add(d)
+                unique.append(d)
+
+        return unique[:6]

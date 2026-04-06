@@ -1,6 +1,7 @@
 """
-Email templates for cold outreach. All in German.
+Email templates for outreach. All in German.
 Each template returns (subject, body_html) tuples.
+Includes cold outreach and warm voice-call follow-ups.
 """
 
 from database.models import Lead, DomainSuggestion
@@ -10,7 +11,7 @@ def initial_outreach(
     lead: Lead,
     preview_url: str,
     domain_suggestions: list[DomainSuggestion],
-    sender_name: str = "WebReach",
+    sender_name: str = "James von Amplivo.net",
 ) -> tuple[str, str]:
     domains_html = ""
     if domain_suggestions:
@@ -30,7 +31,7 @@ def initial_outreach(
     <div style="font-family: -apple-system, Arial, sans-serif; max-width: 600px; color: #333; line-height: 1.6;">
         <p>Guten Tag,</p>
 
-        <p>mein Name ist {sender_name}. Ich bin auf <strong>{lead.business_name}</strong>
+        <p>mein Name ist James von <strong>Amplivo.net</strong>. Ich bin auf <strong>{lead.business_name}</strong>
         aufmerksam geworden und mir ist aufgefallen, dass Sie aktuell
         keine eigene Webseite haben.</p>
 
@@ -91,7 +92,7 @@ def initial_outreach(
 
 
 def follow_up_1(
-    lead: Lead, preview_url: str, sender_name: str = "WebReach"
+    lead: Lead, preview_url: str, sender_name: str = "James von Amplivo.net"
 ) -> tuple[str, str]:
     subject = f"Re: Webseite für {lead.business_name} – kurze Nachfrage"
 
@@ -131,7 +132,7 @@ def follow_up_1(
 
 
 def follow_up_2(
-    lead: Lead, preview_url: str, sender_name: str = "WebReach"
+    lead: Lead, preview_url: str, sender_name: str = "James von Amplivo.net"
 ) -> tuple[str, str]:
     subject = f"Letzte Nachricht: Webseite für {lead.business_name}"
 
@@ -157,6 +158,81 @@ def follow_up_2(
 
         <p>Beste Grüße<br>
         <strong>{sender_name}</strong></p>
+    </div>
+    """
+    return subject, body
+
+
+def voice_followup(
+    lead: Lead,
+    preview_url: str,
+    domain_suggestions: list[DomainSuggestion],
+    contact_name: str = "",
+    sender_name: str = "James von Amplivo.net",
+) -> tuple[str, str]:
+    """Warm follow-up after a phone call where the lead expressed interest."""
+    greeting = f"{contact_name}" if contact_name else "Guten Tag"
+
+    domains_html = ""
+    if domain_suggestions:
+        domain_list = "".join(
+            f"<li><strong>{d.domain_name}{d.tld}</strong>"
+            f"{'  ✓ Empfohlen' if d.is_recommended else ''}</li>"
+            for d in domain_suggestions[:3]
+        )
+        domains_html = f"""
+        <p>Hier noch ein paar passende Domain-Vorschläge:</p>
+        <ul>{domain_list}</ul>
+        """
+
+    subject = f"Wie besprochen: Ihr Website-Entwurf für {lead.business_name}"
+
+    body = f"""
+    <div style="font-family: -apple-system, Arial, sans-serif; max-width: 600px; color: #333; line-height: 1.6;">
+        <p>Hallo {greeting},</p>
+
+        <p>vielen Dank für das nette Gespräch gerade! Wie versprochen,
+        hier der Link zu Ihrem <strong>kostenlosen Website-Entwurf</strong>
+        für <strong>{lead.business_name}</strong>:</p>
+
+        <p style="text-align: center; margin: 24px 0;">
+            <a href="{preview_url}"
+               style="background: #2563eb; color: white; padding: 12px 28px;
+                      border-radius: 8px; text-decoration: none; font-weight: 600;">
+                Ihren Website-Entwurf ansehen
+            </a>
+        </p>
+
+        {domains_html}
+
+        <p>Falls Ihnen etwas gefällt oder Sie Änderungswünsche haben,
+        antworten Sie einfach auf diese E-Mail. Ich passe alles
+        gerne nach Ihren Vorstellungen an.</p>
+
+        <table style="width:100%;border-collapse:collapse;margin:20px 0;font-size:14px">
+            <tr style="background:#f8fafc">
+                <td style="padding:12px 16px;border:1px solid #e5e7eb"><strong>Website (einmalig)</strong></td>
+                <td style="padding:12px 16px;border:1px solid #e5e7eb;text-align:right"><strong>99 €</strong></td>
+            </tr>
+            <tr>
+                <td style="padding:12px 16px;border:1px solid #e5e7eb"><strong>Eigene Domain</strong></td>
+                <td style="padding:12px 16px;border:1px solid #e5e7eb;text-align:right"><strong>ab 15 €/Jahr</strong></td>
+            </tr>
+            <tr style="background:#f8fafc">
+                <td style="padding:12px 16px;border:1px solid #e5e7eb"><strong>Wartung & Updates</strong></td>
+                <td style="padding:12px 16px;border:1px solid #e5e7eb;text-align:right"><strong>10 €/Jahr</strong></td>
+            </tr>
+        </table>
+
+        <p>Ich freue mich auf Ihre Rückmeldung!</p>
+
+        <p>Beste Grüße<br>
+        <strong>{sender_name}</strong></p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
+        <p style="font-size: 12px; color: #999;">
+            Kein Interesse? Antworten Sie mit "Abbestellen".
+        </p>
     </div>
     """
     return subject, body

@@ -63,9 +63,13 @@ def startup():
 
         from dashboard.api import router as api_router
         from dashboard.preview import router as preview_router
+        from dashboard.webhook import router as webhook_router
+        from dashboard.admin import router as admin_router
         app.include_router(api_router)
         app.include_router(preview_router)
-        logger.info("Routes registered")
+        app.include_router(webhook_router)
+        app.include_router(admin_router)
+        logger.info("Routes registered (incl. webhook + admin)")
     except Exception as e:
         logger.error(f"Startup failed (non-fatal): {e}", exc_info=True)
 
@@ -131,7 +135,10 @@ cursor:pointer;font-size:.9rem;font-weight:600}
 <div class="app">
     <div class="top-bar">
         <h1>&#x1f310; <span>WebReach</span> Pipeline</h1>
-        <button class="refresh-btn" onclick="loadAll()">Refresh</button>
+        <div style="display:flex;gap:8px;align-items:center">
+            <a href="/admin" style="color:var(--muted);text-decoration:none;font-size:.85rem">Admin</a>
+            <button class="refresh-btn" onclick="loadAll()">Refresh</button>
+        </div>
     </div>
     <div id="stats" class="stats"></div>
     <p class="section-title">Pipeline Funnel</p>

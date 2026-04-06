@@ -263,3 +263,96 @@ def track_preview_view(lead_id: int):
         return {"tracked": len(messages)}
     finally:
         session.close()
+
+
+def get_admin_data():
+    """Combined data for the admin dashboard. Called from admin.py (behind auth)."""
+    session = get_session()
+    try:
+        messages = (
+            session.query(OutreachMessage, Lead)
+            .join(Lead, OutreachMessage.lead_id == Lead.id)
+            .order_by(OutreachMessage.created_at.desc())
+            .limit(200)
+            .all()
+        )
+
+        outreach_log = []
+        voice_calls = []
+        channel_counts = {"email": 0, "sms": 0, "voice": 0}
+        interest_counts = {"interested": 0, "maybe_later": 0, "not_interested": 0, "other": 0}
+        followup_counts = {"email_sent": 0, "sms_sent": 0, "failed": 0}
+
+        for msg, lead in messages:
+            channel = msg.channel or "email"
+            channel_counts[channel] = channel_counts.get(channel, 0) + 1
+
+            entry = {
+                "id": msg.id,
+                "lead_id": lead.id,
+                "business_name": lead.business_name,
+                "business_type": lead.business_type or "-",
+                "city": lead.city or "-",
+                "channel": channel,
+                "status": msg.status,
+                "subject": msg.subject or "",
+                "recipient": msg.recipient_email or "-",
+                "message_id": msg.message_id or "",
+                "is_follow_up": msg.is_follow_up,
+                "follow_up_number": msg.follow_up_number or 0,
+                "sent_at": msg.sent_at.isoformat() if msg.sent_at else None,
+                "opened_at": msg.opened_at.isoformat() if msg.opened_at else None,
+                "lead_status": lead.status.value,
+                "lead_email": lead.email or "-",
+                "lead_phone": lead.phone or "-",
+            }
+
+            if channel == "voice":
+                interest = "other"
+                subj = (msg.subject or "").lower()
+                if "interested" in subj:
+                    interest = "interested"
+                elif "maybe_later" in subj:
+                    interest = "maybe_later"
+                elif "not_interested" in subj:
+                    interest = "not_interested"
+                interest_counts[interest] += 1
+
+                entry["interest_level"] = interest
+                entry["transcript_preview"] = (msg.body or "")[:200]
+                voice_calls.append(entry)
+
+                next_msgs = [
+                    m for m, _ in messages
+                    if m.lead_id == lead.id
+                    and m.channel != "voice"
+                    and m.sent_at and msg.sent_at
+                    and m.sent_at >= msg.sent_at
+                ]
+                if any(m.status == "sent" for m in next_msgs):
+                    ch = next((m.channel for m in next_msgs if m.status == "sent"), "email")
+                    followup_counts[f"{ch}_sent"] += 1
+                elif any(m.status == "failed" for m in next_msgs):
+                    followup_counts["failed"] += 1
+
+            outreach_log.append(entry)
+
+        total_voice = sum(interest_counts.values())
+        total_outreach = len(outreach_log)
+        opened_count = sum(1 for e in outreach_log if e.get("opened_at"))
+
+        return {
+            "outreach_log": outreach_log,
+            "voice_calls": voice_calls,
+            "summary": {
+                "total_outreach": total_outreach,
+                "total_voice_calls": total_voice,
+                "channel_counts": channel_counts,
+                "interest_counts": interest_counts,
+                "followup_counts": followup_counts,
+                "opened_count": opened_count,
+                "open_rate": round(opened_count / total_outreach * 100, 1) if total_outreach > 0 else 0,
+            },
+        }
+    finally:
+        session.close()

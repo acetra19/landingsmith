@@ -62,7 +62,7 @@ class RailwaySettings(BaseSettings):
 class EmailSettings(BaseSettings):
     resend_api_key: str = ""
     from_email: str = "outreach@example.com"
-    from_name: str = "LandingSmith"
+    from_name: str = "James von Amplivo.net"
 
     model_config = {**SHARED_CONFIG, "env_prefix": "OUTREACH_"}
 
@@ -73,6 +73,13 @@ class TwilioSettings(BaseSettings):
     from_number: str = ""
 
     model_config = {**SHARED_CONFIG, "env_prefix": "TWILIO_"}
+
+
+class RetellSettings(BaseSettings):
+    api_key: str = ""
+    webhook_secret: str = ""
+
+    model_config = {**SHARED_CONFIG, "env_prefix": "RETELL_"}
 
 
 class PipelineSettings(BaseSettings):
@@ -97,6 +104,7 @@ class Settings(BaseSettings):
     railway: RailwaySettings = Field(default_factory=RailwaySettings)
     email: EmailSettings = Field(default_factory=EmailSettings)
     twilio: TwilioSettings = Field(default_factory=TwilioSettings)
+    retell: RetellSettings = Field(default_factory=RetellSettings)
     pipeline: PipelineSettings = Field(default_factory=PipelineSettings)
 
     model_config = {"extra": "ignore"}
