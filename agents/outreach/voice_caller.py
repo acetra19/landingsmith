@@ -13,7 +13,7 @@ from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
-RETELL_API_URL = "https://api.retell.ai/v2/create-phone-call"
+RETELL_API_URL = "https://api.retellai.com/v2/create-phone-call"
 
 
 @dataclass
