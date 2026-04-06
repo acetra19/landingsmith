@@ -6,8 +6,8 @@ This single app runs on Railway and handles everything.
 import logging
 import os
 
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import Cookie, FastAPI
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("landingsmith")
@@ -19,35 +19,6 @@ app = FastAPI(title="LandingSmith Dashboard", version="1.0.0")
 def health():
     """Lightweight health endpoint for Railway — no DB dependency."""
     return JSONResponse({"status": "ok"})
-
-
-@app.get("/debug/db")
-def debug_db():
-    """Show which database is connected (no secrets exposed)."""
-    db_url_env = os.environ.get("DATABASE_URL", "not set")
-    wr_url_env = os.environ.get("WEBREACH_DATABASE_URL", "not set")
-    from config.settings import settings
-    actual = settings.db_url
-    safe_actual = actual[:30] + "..." if len(actual) > 30 else actual
-    safe_db = db_url_env[:30] + "..." if len(db_url_env) > 30 else db_url_env
-    safe_wr = wr_url_env[:30] + "..." if len(wr_url_env) > 30 else wr_url_env
-    try:
-        from database.connection import get_session
-        s = get_session()
-        from database.models import Lead
-        count = s.query(Lead).count()
-        s.close()
-        db_ok = True
-    except Exception as e:
-        count = -1
-        db_ok = False
-    return JSONResponse({
-        "DATABASE_URL": safe_db,
-        "WEBREACH_DATABASE_URL": safe_wr,
-        "resolved_db_url": safe_actual,
-        "db_connected": db_ok,
-        "lead_count": count,
-    })
 
 
 @app.on_event("startup")
@@ -75,7 +46,10 @@ def startup():
 
 
 @app.get("/", response_class=HTMLResponse)
-def root():
+def root(admin_token: str | None = Cookie(default=None)):
+    from dashboard.admin import _is_authed
+    if not _is_authed(admin_token):
+        return RedirectResponse("/admin/login", status_code=303)
     return DASHBOARD_HTML
 
 
@@ -153,8 +127,10 @@ cursor:pointer;font-size:.9rem;font-weight:600}
 </div>
 <script>
 async function loadAll(){
+    const r0=await fetch('/api/stats');
+    if(r0.status===401){window.location='/admin/login';return;}
     const[stats,leads,runs]=await Promise.all([
-        fetch('/api/stats').then(r=>r.json()),
+        r0.json(),
         fetch('/api/leads?limit=100').then(r=>r.json()),
         fetch('/api/pipeline/runs').then(r=>r.json())
     ]);

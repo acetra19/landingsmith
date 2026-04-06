@@ -1,13 +1,14 @@
 """
 REST API endpoints for the dashboard.
 Provides stats, lead management, and pipeline control.
+Protected by the same cookie as /admin.
 """
 
 import logging
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Query
 from pydantic import BaseModel
 
 from database.connection import get_session
@@ -17,7 +18,15 @@ from database.models import (
 )
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api")
+
+
+def _require_auth(admin_token: str | None = Cookie(default=None)):
+    from dashboard.admin import _is_authed
+    if not _is_authed(admin_token):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+router = APIRouter(prefix="/api", dependencies=[Depends(_require_auth)])
 
 
 class StatsResponse(BaseModel):
@@ -242,27 +251,6 @@ def update_lead_status(lead_id: int, new_status: str):
         session.close()
 
 
-@router.post("/preview/{lead_id}/view")
-def track_preview_view(lead_id: int):
-    """Track when someone views a preview (fired from the preview page)."""
-    session = get_session()
-    try:
-        messages = (
-            session.query(OutreachMessage)
-            .filter(
-                OutreachMessage.lead_id == lead_id,
-                OutreachMessage.opened_at.is_(None),
-            )
-            .all()
-        )
-        now = datetime.now(timezone.utc)
-        for msg in messages:
-            msg.opened_at = now
-        if messages:
-            session.commit()
-        return {"tracked": len(messages)}
-    finally:
-        session.close()
 
 
 def get_admin_data():

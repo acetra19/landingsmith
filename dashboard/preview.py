@@ -3,16 +3,17 @@ Preview server: serves generated websites directly from the database.
 Each lead's website is accessible at /preview/{lead_id}/{slug}
 
 This means ALL previews run from one single Railway deployment --
-no separate project per website.
+no separate project per website. All routes here are PUBLIC (no auth).
 """
 
 import logging
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
 
 from database.connection import get_session
-from database.models import Lead, Website, Deployment
+from database.models import Lead, Website, Deployment, OutreachMessage
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -76,5 +77,28 @@ def serve_preview(lead_id: int, slug: str = ""):
         html = website.html_content.replace("</body>", f"{tracking_pixel}</body>")
 
         return HTMLResponse(content=html)
+    finally:
+        session.close()
+
+
+@router.post("/api/preview/{lead_id}/view")
+def track_preview_view(lead_id: int):
+    """Track when someone views a preview. Public endpoint (no auth)."""
+    session = get_session()
+    try:
+        messages = (
+            session.query(OutreachMessage)
+            .filter(
+                OutreachMessage.lead_id == lead_id,
+                OutreachMessage.opened_at.is_(None),
+            )
+            .all()
+        )
+        now = datetime.now(timezone.utc)
+        for msg in messages:
+            msg.opened_at = now
+        if messages:
+            session.commit()
+        return {"tracked": len(messages)}
     finally:
         session.close()
