@@ -82,9 +82,11 @@ def initial_outreach(
 
         <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
         <p style="font-size: 12px; color: #999;">
-            Sie erhalten diese E-Mail, weil Ihr Unternehmen öffentlich auf
+            Amplivo | Florian Kuehnast | Katharinenstr. 19A, 10711 Berlin<br>
+            <a href="https://amplivo.net/impressum" style="color:#999">Impressum</a><br><br>
+            Sie erhalten diese E-Mail, weil Ihr Unternehmen oeffentlich auf
             Google Maps gelistet ist. Falls Sie keine weiteren Nachrichten
-            wünschen, antworten Sie mit "Abbestellen".
+            wuenschen, antworten Sie mit "Abbestellen".
         </p>
     </div>
     """
@@ -124,6 +126,8 @@ def follow_up_1(
 
         <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
         <p style="font-size: 12px; color: #999;">
+            Amplivo | Florian Kuehnast | Katharinenstr. 19A, 10711 Berlin<br>
+            <a href="https://amplivo.net/impressum" style="color:#999">Impressum</a><br><br>
             Kein Interesse? Antworten Sie mit "Abbestellen".
         </p>
     </div>
@@ -158,6 +162,12 @@ def follow_up_2(
 
         <p>Beste Grüße<br>
         <strong>{sender_name}</strong></p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
+        <p style="font-size: 12px; color: #999;">
+            Amplivo | Florian Kuehnast | Katharinenstr. 19A, 10711 Berlin<br>
+            <a href="https://amplivo.net/impressum" style="color:#999">Impressum</a>
+        </p>
     </div>
     """
     return subject, body
@@ -231,6 +241,8 @@ def voice_followup(
 
         <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
         <p style="font-size: 12px; color: #999;">
+            Amplivo | Florian Kuehnast | Katharinenstr. 19A, 10711 Berlin<br>
+            <a href="https://amplivo.net/impressum" style="color:#999">Impressum</a><br><br>
             Kein Interesse? Antworten Sie mit "Abbestellen".
         </p>
     </div>
