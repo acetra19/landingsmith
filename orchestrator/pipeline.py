@@ -3,6 +3,7 @@ Central pipeline that orchestrates all agents in sequence.
 Processes leads in batches, respecting the state machine transitions.
 """
 
+import asyncio
 import logging
 from datetime import datetime, timezone
 from typing import Optional
@@ -205,8 +206,9 @@ class Pipeline:
                 .limit(batch_size)
                 .all()
             )
+            VOICE_CALL_DELAY_SECONDS = 210  # 3.5 min between voice calls
             succeeded, failed, skipped, voice_initiated = 0, 0, 0, 0
-            for lead in leads:
+            for i, lead in enumerate(leads):
                 try:
                     message = await outreach.execute(lead=lead, session=session)
                     if message and message.status == "sent":
@@ -217,6 +219,12 @@ class Pipeline:
                         self.transition_lead(session, lead, LeadStatus.OUTREACH_SENT)
                         lead.outreach_at = datetime.now(timezone.utc)
                         voice_initiated += 1
+                        if i < len(leads) - 1:
+                            logger.info(
+                                f"Voice call {voice_initiated}/{len(leads)} done, "
+                                f"waiting {VOICE_CALL_DELAY_SECONDS}s before next..."
+                            )
+                            await asyncio.sleep(VOICE_CALL_DELAY_SECONDS)
                     elif message and message.status == "skipped":
                         skipped += 1
                     else:
