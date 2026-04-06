@@ -214,6 +214,8 @@ class Pipeline:
                         lead.outreach_at = datetime.now(timezone.utc)
                         succeeded += 1
                     elif message and message.status == "voice_initiated":
+                        self.transition_lead(session, lead, LeadStatus.OUTREACH_SENT)
+                        lead.outreach_at = datetime.now(timezone.utc)
                         voice_initiated += 1
                     elif message and message.status == "skipped":
                         skipped += 1

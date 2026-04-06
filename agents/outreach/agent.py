@@ -51,6 +51,19 @@ class OutreachAgent(BaseAgent):
         if not lead:
             raise ValueError("Lead is required for outreach")
 
+        if session and self._already_contacted(session, lead.id):
+            self.logger.info(
+                f"Lead {lead.id} ({lead.business_name}): already contacted, skipping"
+            )
+            return OutreachMessage(
+                lead_id=lead.id,
+                channel="none",
+                subject="Duplikat-Schutz",
+                body="Lead was already contacted",
+                recipient_email=lead.email or lead.phone or "",
+                status="skipped",
+            )
+
         deployment = self._get_deployment(session, lead.id)
         if not deployment or not deployment.live_url:
             raise ValueError(f"No deployment found for lead {lead.id}")
@@ -436,6 +449,19 @@ class OutreachAgent(BaseAgent):
             )
 
         return message
+
+    def _already_contacted(self, session: Session, lead_id: int) -> bool:
+        """Check if this lead already has a successful outreach message
+        (email sent, voice call initiated, or voice followup sent)."""
+        existing = (
+            session.query(OutreachMessage)
+            .filter(
+                OutreachMessage.lead_id == lead_id,
+                OutreachMessage.status.in_(["sent", "voice_initiated"]),
+            )
+            .first()
+        )
+        return existing is not None
 
     def _get_deployment(self, session: Session, lead_id: int) -> Deployment:
         if not session:
