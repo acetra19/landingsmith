@@ -78,6 +78,8 @@ class TwilioSettings(BaseSettings):
 class RetellSettings(BaseSettings):
     api_key: str = ""
     webhook_secret: str = ""
+    agent_id: str = ""
+    from_number: str = ""
 
     model_config = {**SHARED_CONFIG, "env_prefix": "RETELL_"}
 

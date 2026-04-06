@@ -205,7 +205,7 @@ class Pipeline:
                 .limit(batch_size)
                 .all()
             )
-            succeeded, failed, skipped = 0, 0, 0
+            succeeded, failed, skipped, voice_initiated = 0, 0, 0, 0
             for lead in leads:
                 try:
                     message = await outreach.execute(lead=lead, session=session)
@@ -213,6 +213,8 @@ class Pipeline:
                         self.transition_lead(session, lead, LeadStatus.OUTREACH_SENT)
                         lead.outreach_at = datetime.now(timezone.utc)
                         succeeded += 1
+                    elif message and message.status == "voice_initiated":
+                        voice_initiated += 1
                     elif message and message.status == "skipped":
                         skipped += 1
                     else:
@@ -222,7 +224,9 @@ class Pipeline:
                     failed += 1
             session.commit()
             logger.info(
-                f"Outreach complete: {succeeded} sent, {skipped} skipped (landline), {failed} failed"
+                f"Outreach complete: {succeeded} email sent, "
+                f"{voice_initiated} voice calls initiated, "
+                f"{skipped} skipped, {failed} failed"
             )
             run.leads_processed = len(leads)
             run.leads_succeeded = succeeded

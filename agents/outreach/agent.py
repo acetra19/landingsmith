@@ -16,6 +16,7 @@ from agents.outreach.email_templates import (
 )
 from agents.outreach.sms_sender import SMSSender
 from agents.outreach.sms_templates import initial_sms, follow_up_sms, voice_followup_sms
+from agents.outreach.voice_caller import VoiceCaller
 from config.settings import settings
 from database.models import Lead, Deployment, DomainSuggestion, OutreachMessage
 
@@ -30,12 +31,19 @@ class OutreachAgent(BaseAgent):
         super().__init__("outreach")
         self.email_sender = EmailSender()
         self._sms_sender = None
+        self._voice_caller = None
 
     @property
     def sms_sender(self) -> SMSSender:
         if self._sms_sender is None:
             self._sms_sender = SMSSender()
         return self._sms_sender
+
+    @property
+    def voice_caller(self) -> VoiceCaller:
+        if self._voice_caller is None:
+            self._voice_caller = VoiceCaller()
+        return self._voice_caller
 
     async def execute(
         self, lead: Lead = None, session: Session = None, **kwargs
@@ -49,17 +57,31 @@ class OutreachAgent(BaseAgent):
 
         if lead.email:
             return await self._send_email(lead, deployment, session)
-        else:
+        elif lead.phone and self.voice_caller.is_configured:
+            return await self._initiate_voice_call(lead, deployment, session)
+        elif lead.phone:
             self.logger.info(
-                f"Lead {lead.id} ({lead.business_name}): no email, "
-                f"skipping cold outreach (cold SMS disabled for compliance)"
+                f"Lead {lead.id} ({lead.business_name}): has phone but "
+                f"Retell not configured, skipping"
             )
             return OutreachMessage(
                 lead_id=lead.id,
-                channel="sms",
-                subject=f"Kalt-SMS deaktiviert fuer {lead.phone or 'N/A'}",
-                body="Cold SMS disabled – only voice-followup SMS allowed",
-                recipient_email=lead.phone or "",
+                channel="voice",
+                subject=f"Voice nicht konfiguriert fuer {lead.phone}",
+                body="Retell not configured – cannot initiate voice call",
+                recipient_email=lead.phone,
+                status="skipped",
+            )
+        else:
+            self.logger.info(
+                f"Lead {lead.id} ({lead.business_name}): no email or phone"
+            )
+            return OutreachMessage(
+                lead_id=lead.id,
+                channel="none",
+                subject="Kein Kontaktkanal verfuegbar",
+                body="No email or phone available for outreach",
+                recipient_email="",
                 status="skipped",
             )
 
@@ -104,6 +126,46 @@ class OutreachAgent(BaseAgent):
         else:
             self.logger.error(
                 f"Email failed for {lead.business_name}: {result.error}"
+            )
+
+        return message
+
+    async def _initiate_voice_call(
+        self, lead: Lead, deployment: Deployment, session: Session
+    ) -> OutreachMessage:
+        """Initiate a Retell voice call for leads with phone but no email."""
+        result = await self.voice_caller.call(lead.phone)
+
+        if result.success:
+            status = "voice_initiated"
+        else:
+            is_landline = "landline" in (result.error or "").lower()
+            status = "skipped" if is_landline else "failed"
+
+        message = OutreachMessage(
+            lead_id=lead.id,
+            channel="voice",
+            subject=f"Voice call an {lead.phone}",
+            body=f"Retell call initiated (call_id: {result.call_id})" if result.success
+                 else f"Voice call failed: {result.error}",
+            recipient_email=lead.phone,
+            message_id=result.call_id,
+            status=status,
+            sent_at=datetime.now(timezone.utc) if result.success else None,
+        )
+
+        if session:
+            session.add(message)
+            session.commit()
+
+        if result.success:
+            self.logger.info(
+                f"Voice call initiated to {lead.phone} for {lead.business_name}"
+            )
+            await self._send_notification(lead, "voice", deployment)
+        else:
+            self.logger.error(
+                f"Voice call failed for {lead.business_name}: {result.error}"
             )
 
         return message
@@ -436,3 +498,5 @@ class OutreachAgent(BaseAgent):
 
     async def close(self):
         await self.email_sender.close()
+        if self._voice_caller:
+            await self._voice_caller.close()
